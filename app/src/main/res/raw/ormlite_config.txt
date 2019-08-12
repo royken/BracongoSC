@@ -1,0 +1,88 @@
+#-start--
+dataClass=com.royken.bracongo.bracongosc.entities.Client
+tableName=client
+# --table-fields-start--
+# --field-start--
+fieldName=id
+columnName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=nom
+columnName=nom
+# --field-end--
+# --field-start--
+fieldName=nomProprietaire
+columnName=nomProprietaire
+# --field-end--
+# --field-start--
+fieldName=numero
+columnName=numero
+# --field-end--
+# --field-start--
+fieldName=adresse
+columnName=adresse
+# --field-end--
+# --field-start--
+fieldName=quartier
+columnName=quartier
+# --field-end--
+# --field-start--
+fieldName=commune
+columnName=commune
+# --field-end--
+# --field-start--
+fieldName=ville
+columnName=ville
+# --field-end--
+# --field-start--
+fieldName=telephone
+columnName=telephone
+# --field-end--
+# --field-start--
+fieldName=type
+columnName=type
+# --field-end--
+# --field-start--
+fieldName=categorie
+columnName=categorie
+# --field-end--
+# --field-start--
+fieldName=regime
+columnName=regime
+# --field-end--
+# --field-start--
+fieldName=latitude
+columnName=latitude
+# --field-end--
+# --field-start--
+fieldName=longitude
+columnName=longitude
+# --field-end--
+# --field-start--
+fieldName=dernierAchat
+columnName=dernierAchat
+# --field-end--
+# --field-start--
+fieldName=dateCreation
+columnName=dateCreation
+# --field-end--
+# --field-start--
+fieldName=numeroContrat
+columnName=numeroContrat
+# --field-end--
+# --field-start--
+fieldName=emballage
+columnName=emballage
+# --field-end--
+# --field-start--
+fieldName=consignationEmballages
+columnName=consignationEmballages
+# --field-end--
+
+
+# --table-fields-end--
+# --table-end--
+#################################
+
+#################################

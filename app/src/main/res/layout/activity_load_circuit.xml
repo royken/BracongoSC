@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:layout_height="fill_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:orientation="vertical"
+    android:layout_centerVertical="true"
+    android:background="@color/colorPrimary"
+    android:gravity="center"
+    android:layout_centerInParent="true"
+    android:layout_centerHorizontal="true"
+    tools:context="com.royken.bracongo.bracongosc.activity.LoadCircuitActivity">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:layout_centerInParent="true"
+        android:textColor="#ffffff"
+        android:gravity="center"
+        android:shadowColor="#ffffff"
+        android:textColorLink="#ffffff"
+        android:textColorHint="#ffffff"
+        android:textColorHighlight="#ffffff"
+        android:hint="Code circuit"
+        android:textSize="16dip"
+        android:id="@+id/circuit" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Charger les données"
+        android:id="@+id/button"
+        android:gravity="center"
+        android:paddingLeft="10dp"
+        android:textColor="@color/colorPrimary"
+        android:textSize="15dp"
+        android:paddingRight="10dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/button_bg_rounded_corners"
+        android:textAlignment="center"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:layout_centerHorizontal="true" />
+
+
+</LinearLayout>
