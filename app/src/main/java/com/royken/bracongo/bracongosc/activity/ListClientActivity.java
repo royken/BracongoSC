@@ -1,6 +1,5 @@
 package com.royken.bracongo.bracongosc.activity;
 
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -8,13 +7,18 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Button;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ListView;
@@ -31,8 +35,6 @@ import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.network.util.AndroidNetworkUtility;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -42,7 +44,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class ListClientActivity extends ListActivity implements  SearchView.OnQueryTextListener, VenteCircuitFragment.OnFragmentInteractionListener{
+public class ListClientActivity extends ListFragment implements  SearchView.OnQueryTextListener{
 
     private static final String ARG_CLIENTID = "idClient";
 
@@ -58,48 +60,72 @@ public class ListClientActivity extends ListActivity implements  SearchView.OnQu
     private FloatingActionButton ventesBtn;
     private FloatingActionButton refreshCircuitBtn;
     private FloatingActionButton modifierCircuitBtn;
+    private TextView title;
+
+    private OnFragmentInteractionListener mListener;
+
+    public static ListClientActivity newInstance() {
+        ListClientActivity fragment = new ListClientActivity();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_client);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setActionBar(toolbar);
-        mSearchView = (SearchView) findViewById(R.id.searchView);
-        ventesBtn = (FloatingActionButton) findViewById(R.id.ventesBtn);
-        refreshCircuitBtn = (FloatingActionButton) findViewById(R.id.refreshBtn);
-        modifierCircuitBtn = (FloatingActionButton) findViewById(R.id.changerCircBtn);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         try {
             clientsDao = getHelper().getClientDao();
             clients = clientsDao.queryForAll();
             getListView().setTextFilterEnabled(true);
             setupSearchView();
-            clientAdapter = new ClientAdapter(getApplicationContext(),clients);
+            clientAdapter = new ClientAdapter(getActivity(),clients);
             setListAdapter(clientAdapter);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
+        title = (TextView) bar.findViewById(R.id.title);
+        View rootView = inflater.inflate(R.layout.activity_list_client, container, false);
+        mSearchView = (SearchView) rootView.findViewById(R.id.searchView);
+        ventesBtn = (FloatingActionButton) rootView.findViewById(R.id.ventesBtn);
+        refreshCircuitBtn = (FloatingActionButton) rootView.findViewById(R.id.refreshBtn);
+        modifierCircuitBtn = (FloatingActionButton) rootView.findViewById(R.id.changerCircBtn);
 
         ventesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                settings = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                circuit = settings.getString("com.bracongo.circuit","");
+                if(circuit.length() < 5){
+                    Toast.makeText(getActivity(), "Le circuit est invalide, Modifiez-le", Toast.LENGTH_LONG).show();
+                }
+                Fragment fragment = VenteCircuitFragment.newInstance(circuit);
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.fragment,fragment);
+                ft.addToBackStack(null);
+                ft.commit();
             }
         });
 
         refreshCircuitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                settings = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
                 circuit = settings.getString("com.bracongo.circuit","");
                 if(circuit.length() < 5){
-                    Toast.makeText(getApplicationContext(), "Le circuit est invalide, Modifiez-le", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "Le circuit est invalide, Modifiez-le", Toast.LENGTH_LONG).show();
                 }
                 else {
 
                     AndroidNetworkUtility androidNetworkUtility = new AndroidNetworkUtility();
-                    if (!androidNetworkUtility.isConnected(getApplicationContext())) {
-                        Toast.makeText(getApplicationContext(), "Aucune connexion au serveur. Veuillez reéssayer plus tard", Toast.LENGTH_LONG).show();
+                    if (!androidNetworkUtility.isConnected(getActivity())) {
+                        Toast.makeText(getActivity(), "Aucune connexion au serveur. Veuillez reéssayer plus tard", Toast.LENGTH_LONG).show();
                     } else {
 
                         new ClientsTask().execute();
@@ -112,64 +138,41 @@ public class ListClientActivity extends ListActivity implements  SearchView.OnQu
         modifierCircuitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                settings = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putBoolean("com.bracongo.data", false);
                 editor.commit();
-                Intent intent = new Intent(ListClientActivity.this,
+                Intent intent = new Intent(getActivity(),
                         LoadCircuitActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
-                ListClientActivity.this.finish();
+                getActivity().finish();
             }
         });
+        return rootView;
     }
 
+
+
     @Override
-    protected void onListItemClick(ListView list, View view, int position, long id) {
+    public void onListItemClick(ListView list, View view, int position, long id) {
         super.onListItemClick(list, view, position, id);
-        Intent intent = new Intent(ListClientActivity.this,
+
+        Fragment fragment = ClientDetailFragment.newInstance(((Client)clientAdapter.getItem(position)).getId());
+        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment,fragment);
+        ft.addToBackStack(null);
+        ft.commit();
+        /*Intent intent = new Intent(getActivity(),
                 MainActivity.class);
 
         Log.i("ID SENBTTT", ((Client)clientAdapter.getItem(position)).getId()+"");
         intent.putExtra(ARG_CLIENTID, ((Client)clientAdapter.getItem(position)).getId());
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        startActivity(intent);
+        startActivity(intent);*/
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        if (id == R.id.action_circuit) {
-            settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putBoolean("com.bracongo.data", false);
-            editor.commit();
-            Intent intent = new Intent(ListClientActivity.this,
-                    LoadCircuitActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            startActivity(intent);
-            ListClientActivity.this.finish();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
 
     private void setupSearchView()
@@ -202,21 +205,16 @@ public class ListClientActivity extends ListActivity implements  SearchView.OnQu
 
     private DatabaseHelper getHelper() {
         if (databaseHelper == null) {
-            //databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
-            databaseHelper = new DatabaseHelper(getApplicationContext());
+            databaseHelper = new DatabaseHelper(getActivity());
         }
         return databaseHelper;
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
 
     private class ClientsTask extends AsyncTask<String, Void, Void> {
         // Required initialization
 
-        private ProgressDialog Dialog = new ProgressDialog(ListClientActivity.this);
+        private ProgressDialog Dialog = new ProgressDialog(getActivity());
 
 
         protected void onPreExecute() {
@@ -244,23 +242,23 @@ public class ListClientActivity extends ListActivity implements  SearchView.OnQu
                             TableUtils.dropTable(clientDao.getConnectionSource(), Client.class, true);
                             TableUtils.createTable(clientDao.getConnectionSource(), Client.class);
                             clientDao.create(clients);
-                            settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                            settings = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = settings.edit();
                             editor.putString("com.bracongo.circuit", circuit.trim());
                             editor.commit();
                             //Log.i("TOTALLLL ===== ",clientDao.countOf()+"");
                             Dialog.dismiss();
 
-                            Intent intent = new Intent(ListClientActivity.this,
-                                    ListClientActivity.class);
+                            Intent intent = new Intent(getActivity(),
+                                    MainActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                             startActivity(intent);
-                            ListClientActivity.this.finish();
+                            getActivity().finish();
                         }
                         else {
                             Dialog.dismiss();
 
-                            Toast.makeText(getApplicationContext(),"Aucun Client trouvé, Vérifiez la connexion/Circuit !!!",Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(),"Aucun Client trouvé, Vérifiez la connexion/Circuit !!!",Toast.LENGTH_LONG).show();
                         }
                     } catch (SQLException e) {
                         e.printStackTrace();
@@ -279,6 +277,21 @@ public class ListClientActivity extends ListActivity implements  SearchView.OnQu
 
         }
 
+    }
+
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
     }
 
 

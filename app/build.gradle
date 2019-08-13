@@ -6,8 +6,8 @@ android {
         applicationId "com.royken.bracongo.bracongosc"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 4
-        versionName "2.2"
+        versionCode 6
+        versionName "2.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         useLibrary 'org.apache.http.legacy'
     }

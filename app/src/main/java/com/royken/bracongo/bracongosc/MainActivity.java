@@ -22,22 +22,23 @@ import com.royken.bracongo.bracongosc.activity.ClientDetailFragment;
 import com.royken.bracongo.bracongosc.activity.ClientFragment;
 import com.royken.bracongo.bracongosc.activity.HistoAchatsAnneeFragment;
 import com.royken.bracongo.bracongosc.activity.HistoAchatsMoisFragment;
+import com.royken.bracongo.bracongosc.activity.ListClientActivity;
 import com.royken.bracongo.bracongosc.activity.LoadCircuitActivity;
 import com.royken.bracongo.bracongosc.activity.MaterielFragment;
 import com.royken.bracongo.bracongosc.activity.MessageFragment;
 import com.royken.bracongo.bracongosc.activity.PlainteFragment;
 import com.royken.bracongo.bracongosc.activity.RemiseFragment;
+import com.royken.bracongo.bracongosc.activity.VenteCircuitFragment;
 import com.royken.bracongo.bracongosc.activity.VenteFragment;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.Client;
 
-public class MainActivity extends AppCompatActivity implements ClientFragment.OnFragmentInteractionListener, VenteFragment.OnFragmentInteractionListener, PlainteFragment.OnFragmentInteractionListener,MessageFragment.OnFragmentInteractionListener,ClientDetailFragment.OnFragmentInteractionListener, RemiseFragment.OnFragmentInteractionListener, HistoAchatsMoisFragment.OnFragmentInteractionListener, HistoAchatsAnneeFragment.OnFragmentInteractionListener, MaterielFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ClientFragment.OnFragmentInteractionListener, VenteFragment.OnFragmentInteractionListener, PlainteFragment.OnFragmentInteractionListener,MessageFragment.OnFragmentInteractionListener,ClientDetailFragment.OnFragmentInteractionListener, RemiseFragment.OnFragmentInteractionListener, HistoAchatsMoisFragment.OnFragmentInteractionListener, HistoAchatsAnneeFragment.OnFragmentInteractionListener, MaterielFragment.OnFragmentInteractionListener, VenteCircuitFragment.OnFragmentInteractionListener, ListClientActivity.OnFragmentInteractionListener {
 
     private static final String ARG_CLIENTID = "idClient";
     private DatabaseHelper databaseHelper = null;
     public static final String PREFS_NAME = "com.bracongo.bracongoSCFile";
     SharedPreferences settings ;
-    Dao<Client, Integer> clientsDao;
 
     private int idClient;
     /**
@@ -73,9 +74,7 @@ public class MainActivity extends AppCompatActivity implements ClientFragment.On
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
     */
-        idClient = getIntent().getIntExtra(ARG_CLIENTID,0);
-        Log.i("ID SENT", idClient+"");
-        Fragment fragment = ClientDetailFragment.newInstance(idClient);
+        Fragment fragment = ListClientActivity.newInstance();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment,fragment);
         //ft.addToBackStack(null);

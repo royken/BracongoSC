@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
+import com.royken.bracongo.bracongosc.MainActivity;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.Client;
@@ -55,10 +56,10 @@ public class LoadCircuitActivity extends AppCompatActivity {
         dataBtn = (Button)findViewById(R.id.button);
         circuitTxt = (EditText) findViewById(R.id.circuit);
         settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        loadData = settings.getBoolean("com.royken.data",false);
+        loadData = settings.getBoolean("com.bracongo.data",false);
         if(loadData == true){
             Intent intent = new Intent(LoadCircuitActivity.this,
-                    ListClientActivity.class);
+                    MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             startActivity(intent);
             LoadCircuitActivity.this.finish();
@@ -136,7 +137,7 @@ public class LoadCircuitActivity extends AppCompatActivity {
                             //Log.i("TOTALLLL ===== ",clientDao.countOf()+"");
                             Dialog.dismiss();
                             Intent intent = new Intent(LoadCircuitActivity.this,
-                                    ListClientActivity.class);
+                                    MainActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                             startActivity(intent);
                             LoadCircuitActivity.this.finish();

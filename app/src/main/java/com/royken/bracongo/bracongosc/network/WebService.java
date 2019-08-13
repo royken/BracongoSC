@@ -40,8 +40,14 @@ public interface WebService {
     @GET("bracongo-api/achats/produits/{numero}/{password}")
     Call<List<ProduitMois>> getProduitsAchatsMois(@Path("numero") String numero, @Path("password") String password);
 
+    @GET("bracongo-api/achats/produits/circuit/{circuit}")
+    Call<List<ProduitMois>> getProduitsAchatsMoisCircuit(@Path("circuit") String circuit);
+
     @GET("bracongo-api/achats/annee/{numero}/{password}")
     Call<List<AchatProduitMois>> getHistoAchatsAnnee(@Path("numero") String numero, @Path("password") String password);
+
+    @GET("bracongo-api/achats/circuit/{circuit}")
+    Call<List<AchatProduitMois>> getHistoAchatsMoisCircuit(@Path("circuit") String circuit);
 
     @GET("bracongo-api/materiels/maryse/client/{numero}")
     Call<List<Materiel>> getMaterielsClientMaryse(@Path("numero") String numero);
