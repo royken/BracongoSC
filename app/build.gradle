@@ -6,8 +6,8 @@ android {
         applicationId "com.royken.bracongo.bracongosc"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 6
-        versionName "2.4"
+        versionCode 8
+        versionName "2.4.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         useLibrary 'org.apache.http.legacy'
     }
@@ -29,6 +29,7 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    implementation 'com.balysv:material-ripple:1.0.2'                  // ripple effect
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.support:cardview-v7:28.0.0'

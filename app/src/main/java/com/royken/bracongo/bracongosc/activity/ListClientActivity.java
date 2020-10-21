@@ -14,6 +14,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -29,6 +31,7 @@ import com.j256.ormlite.table.TableUtils;
 import com.royken.bracongo.bracongosc.MainActivity;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.ClientAdapter;
+import com.royken.bracongo.bracongosc.adapter.ClientRecycleAdapter;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.Client;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
@@ -44,7 +47,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class ListClientActivity extends ListFragment implements  SearchView.OnQueryTextListener{
+public class ListClientActivity extends Fragment implements  SearchView.OnQueryTextListener, ClientRecycleAdapter.ClientsAdapterListener {
 
     private static final String ARG_CLIENTID = "idClient";
 
@@ -61,6 +64,8 @@ public class ListClientActivity extends ListFragment implements  SearchView.OnQu
     private FloatingActionButton refreshCircuitBtn;
     private FloatingActionButton modifierCircuitBtn;
     private TextView title;
+    private RecyclerView recyclerView;
+    private ClientRecycleAdapter clientRecycleAdapter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -76,12 +81,16 @@ public class ListClientActivity extends ListFragment implements  SearchView.OnQu
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         try {
+            title.setText("Accueil" );
             clientsDao = getHelper().getClientDao();
             clients = clientsDao.queryForAll();
-            getListView().setTextFilterEnabled(true);
+           // getListView().setTextFilterEnabled(true);
             setupSearchView();
-            clientAdapter = new ClientAdapter(getActivity(),clients);
-            setListAdapter(clientAdapter);
+            //clientAdapter = new ClientAdapter(getActivity(),clients);
+            clientRecycleAdapter = new ClientRecycleAdapter(clients,getActivity(), this);
+            recyclerView.setAdapter(clientRecycleAdapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+           // setListAdapter(clientAdapter);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -93,6 +102,7 @@ public class ListClientActivity extends ListFragment implements  SearchView.OnQu
         title = (TextView) bar.findViewById(R.id.title);
         View rootView = inflater.inflate(R.layout.activity_list_client, container, false);
         mSearchView = (SearchView) rootView.findViewById(R.id.searchView);
+        recyclerView = rootView.findViewById(R.id.recycler_view);
         ventesBtn = (FloatingActionButton) rootView.findViewById(R.id.ventesBtn);
         refreshCircuitBtn = (FloatingActionButton) rootView.findViewById(R.id.refreshBtn);
         modifierCircuitBtn = (FloatingActionButton) rootView.findViewById(R.id.changerCircBtn);
@@ -149,28 +159,25 @@ public class ListClientActivity extends ListFragment implements  SearchView.OnQu
                 getActivity().finish();
             }
         });
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // filter recycler view when query submitted
+                clientRecycleAdapter.getFilter().filter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                // filter recycler view when text is changed
+                clientRecycleAdapter.getFilter().filter(query);
+                return false;
+            }
+        });
         return rootView;
     }
 
-
-
-    @Override
-    public void onListItemClick(ListView list, View view, int position, long id) {
-        super.onListItemClick(list, view, position, id);
-
-        Fragment fragment = ClientDetailFragment.newInstance(((Client)clientAdapter.getItem(position)).getId());
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.fragment,fragment);
-        ft.addToBackStack(null);
-        ft.commit();
-        /*Intent intent = new Intent(getActivity(),
-                MainActivity.class);
-
-        Log.i("ID SENBTTT", ((Client)clientAdapter.getItem(position)).getId()+"");
-        intent.putExtra(ARG_CLIENTID, ((Client)clientAdapter.getItem(position)).getId());
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        startActivity(intent);*/
-    }
 
 
 
@@ -188,16 +195,19 @@ public class ListClientActivity extends ListFragment implements  SearchView.OnQu
     {
 
         if (TextUtils.isEmpty(newText)) {
-            getListView().clearTextFilter();
+           // getListView().clearTextFilter();
+
         } else {
-            getListView().setFilterText(newText);
+            //getListView().setFilterText(newText);
         }
+        clientRecycleAdapter.getFilter().filter(newText);
         return true;
     }
 
     @Override
     public boolean onQueryTextSubmit(String query)
     {
+        clientRecycleAdapter.getFilter().filter(query);
         return false;
     }
 
@@ -208,6 +218,15 @@ public class ListClientActivity extends ListFragment implements  SearchView.OnQu
             databaseHelper = new DatabaseHelper(getActivity());
         }
         return databaseHelper;
+    }
+
+    @Override
+    public void onClientSelected(Client client) {
+        Fragment fragment = ClientDetailFragment.newInstance(client.getId());
+        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment,fragment);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
 
