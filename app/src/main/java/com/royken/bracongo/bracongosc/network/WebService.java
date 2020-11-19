@@ -38,7 +38,7 @@ public interface WebService {
     Call<List<Client>> getClientsCircuit(@Path("circuit") String circuit);
 */
     @GET("bracongo-api/achats/remise/histo/{numero}/{password}")
-    Call<List<RemiseInfo>> getHistoRemise(@Path("numero") String numero, @Path("password") String password);
+    Observable<List<RemiseInfo>> getHistoRemise(@Path("numero") String numero, @Path("password") String password);
 
     @GET("bracongo-api/achats/{numero}/{password}")
     Call<List<AchatProduit>> getHistoAchatsMois(@Path("numero") String numero, @Path("password") String password);

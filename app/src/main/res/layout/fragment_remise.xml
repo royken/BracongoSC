@@ -7,70 +7,89 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.royken.bracongo.bracongosc.activity.RemiseFragment">
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="fill_parent"
-        app:cardBackgroundColor="#ffffff"
-        android:layout_marginTop="20dp"
-        android:layout_height="wrap_content" >
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <TextView
-                android:text="HISTORIQUE REMISE"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textAlignment="center"
-                android:textColor="@color/colorPrimary"
-                android:layout_marginBottom="10dp"
-                android:id="@+id/venteMLabel" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <androidx.cardview.widget.CardView
+            android:layout_width="fill_parent"
+            app:cardBackgroundColor="#ffffff"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content" >
             <LinearLayout
-                android:orientation="horizontal"
-                android:background="@color/colorPrimary"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <TextView
-                    android:text="MOIS"
-                    android:layout_width="wrap_content"
+                    android:text="HISTORIQUE REMISE"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:textAlignment="center"
-                    android:textColor="#ffffff"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:textColor="@color/colorPrimary"
+                    android:layout_marginBottom="10dp"
+                    android:id="@+id/venteMLabel" />
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:background="@color/colorPrimary"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:text="MOIS"
+                        android:layout_width="wrap_content"
+                        android:layout_gravity="center"
+                        android:textAlignment="center"
+                        android:textColor="#ffffff"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
 
-                <TextView
-                    android:text="REMISE"
-                    android:layout_width="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="center"
-                    android:textColor="#ffffff"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    <TextView
+                        android:text="REMISE"
+                        android:layout_width="wrap_content"
+                        android:layout_gravity="center"
+                        android:textAlignment="center"
+                        android:textColor="#ffffff"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
 
-                <TextView
-                    android:text="C.A"
-                    android:layout_width="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="center"
-                    android:textColor="#ffffff"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    <TextView
+                        android:text="C.A"
+                        android:layout_width="wrap_content"
+                        android:layout_gravity="center"
+                        android:textAlignment="center"
+                        android:textColor="#ffffff"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+                </LinearLayout>
+                <ListView
+                    android:layout_width="match_parent"
+                    android:nestedScrollingEnabled="true"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="top"
+                    android:id="@+id/list"
+                    />
             </LinearLayout>
-            <ListView
-                android:layout_width="match_parent"
-                android:nestedScrollingEnabled="true"
-                android:layout_height="match_parent"
-                android:layout_gravity="top"
-                android:id="@+id/list"
-                />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+        </androidx.cardview.widget.CardView>
+
+        <com.example.kloadingspin.KLoadingSpin
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:backgroundColor="@color/blue_grey_900"
+            app:primarySpinnerColor="#ffffff"
+            app:rotationSpeedInMs="3000"
+            app:text="Recherche des remises ..."
+            app:secondarySpinnerColor="#FF9800"
+            app:textColor="#ffffff"
+            app:textSize="20" />
+    </LinearLayout>
+
+
 
 </ScrollView>

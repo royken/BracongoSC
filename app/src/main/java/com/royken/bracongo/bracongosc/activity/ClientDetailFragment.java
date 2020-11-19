@@ -27,7 +27,6 @@ import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.Client;
 import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -45,10 +44,7 @@ public class ClientDetailFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private static final String ARG_CLIENTID = "idClient";
 
-    private DatabaseHelper databaseHelper = null;
     public static final String PREFS_NAME = "com.bracongo.bracongoSCFile";
-    SharedPreferences settings ;
-    Dao<Client, Integer> clientsDao;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -294,13 +290,6 @@ public class ClientDetailFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private DatabaseHelper getHelper() {
-        if (databaseHelper == null) {
-            //databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
-            databaseHelper = new DatabaseHelper(getActivity());
-        }
-        return databaseHelper;
-    }
 
     private String getDateString(Date date){
         Calendar gc = new GregorianCalendar();
