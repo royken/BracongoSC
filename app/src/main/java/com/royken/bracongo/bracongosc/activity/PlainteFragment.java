@@ -1,6 +1,7 @@
 package com.royken.bracongo.bracongosc.activity;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,19 +15,35 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
+import com.example.kloadingspin.KLoadingSpin;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.snackbar.Snackbar;
 import com.j256.ormlite.dao.Dao;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.PlainteAdapter;
+import com.royken.bracongo.bracongosc.adapter.RemiseAdapter;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.Client;
 import com.royken.bracongo.bracongosc.entities.Plainte;
+import com.royken.bracongo.bracongosc.entities.RemiseInfo;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
+import com.royken.bracongo.bracongosc.util.Helper;
+import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.List;
 
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -70,6 +87,13 @@ public class PlainteFragment extends ListFragment {
 
     private TextView title;
 
+    private ClientViewModel clientViewModel;
+
+    KLoadingSpin spinner;
+    private String accessToken;
+
+    private SharedPreferences sharedPreferences;
+
     public PlainteFragment() {
         // Required empty public constructor
     }
@@ -93,18 +117,12 @@ public class PlainteFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        try {
-            title.setText("PLAINTES");
-            clientsDao = getHelper().getClientDao();
-            //Log.i("IDCLIENT", idClient+"");
-            client = clientsDao.queryForId(idClient);
-            Dialog1 = new ProgressDialog(getActivity());
-            Dialog1.setMessage("Récupération des informations...");
-            Dialog1.show();
-            new PlaintesTask().execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        //title.setText("PLAINTES");
+        clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
+        clientViewModel.getById(idClient).observe(getViewLifecycleOwner(), client_ -> {
+            client = client_;
+            getMaterielData();
+        });
     }
 
     @Override
@@ -122,6 +140,24 @@ public class PlainteFragment extends ListFragment {
         //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
         //title = (TextView) bar.findViewById(R.id.title);
         //list = (ListView) rootView.findViewById(R.id.list);
+        spinner = rootView.findViewById(R.id.spinner);
+        list = (ListView) rootView.findViewById(R.id.list);
+        MasterKey masterKey = null;
+        try {
+            masterKey = new MasterKey.Builder(getContext(),MasterKey.DEFAULT_MASTER_KEY_ALIAS).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+            sharedPreferences = EncryptedSharedPreferences.create(
+                    getContext(),
+                    "com.bracongo.bracongosc.sharedPrefs",
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            accessToken = sharedPreferences.getString("user.accessToken", "");
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return rootView;
     }
 
@@ -155,54 +191,6 @@ public class PlainteFragment extends ListFragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private class PlaintesTask extends AsyncTask<String, Void, Void> {
-        // Required initialization
-
-        private ProgressDialog Dialog = new ProgressDialog(getActivity());
-        private boolean data;
-
-
-        protected void onPreExecute() {
-           // Dialog.setMessage("Récupération des informations...");
-          //  Dialog.show();
-        }
-
-        // Call after onPreExecute method
-        protected Void doInBackground(String... urls) {
-            //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = null;
-            WebService service = retrofit.create(WebService.class);
-            Call<List<Plainte>> call = service.getPlaintesClientMaryse(client.getNumero().trim());
-            call.enqueue(new Callback<List<Plainte>>() {
-                @Override
-                public void onResponse(Call<List<Plainte>> call, Response<List<Plainte>> response) {
-                    Log.i("Result....", response.toString());
-                    plaintes  = response.body();
-                    plainteAdapter = new PlainteAdapter(getActivity(),plaintes);
-                    setListAdapter(plainteAdapter);
-                    Dialog1.dismiss();
-                }
-                @Override
-                public void onFailure(Call<List<Plainte>> call, Throwable t) {
-                    Log.i("Error...", t.toString());
-                }
-            });
-            return null;
-        }
-
-        protected void onPostExecute(Void unused) {
-            Dialog.dismiss();
-        }
-
-    }
-
-    private DatabaseHelper getHelper() {
-        if (databaseHelper == null) {
-            //databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
-            databaseHelper = new DatabaseHelper(getActivity());
-        }
-        return databaseHelper;
-    }
 
     private static long getIntFromClient(String clientNumber){
         long hash = 0;
@@ -210,5 +198,46 @@ public class PlainteFragment extends ListFragment {
             hash += clientNumber.charAt(i) * (i+1);
         }
         return hash;
+    }
+
+    private void getMaterielData(){
+        spinner.startAnimation();
+        spinner.setIsVisible(true);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        service.getPlaintesClientMaryse(client.getNumero().trim())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<Plainte>>() {
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("ERROR CALL", e.getMessage());
+                        Snackbar.make(getActivity().findViewById(android.R.id.content), "Erreur connexion, essayer ultérieurement", Snackbar.LENGTH_LONG).show();
+                        spinner.stopAnimation();
+                        spinner.setIsVisible(false);
+                        //layout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        spinner.stopAnimation();
+                        spinner.setIsVisible(false);
+                        // layout.setVisibility(View.VISIBLE);
+                        plainteAdapter = new PlainteAdapter(getActivity(),plaintes);
+                        setListAdapter(plainteAdapter);
+                       // Helper.getListViewSize(list);
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<Plainte> response) {
+                        plaintes = response;
+                    }
+                });
     }
 }

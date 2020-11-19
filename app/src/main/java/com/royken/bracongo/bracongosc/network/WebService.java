@@ -59,13 +59,11 @@ public interface WebService {
     Call<List<Materiel>> getMaterielsClientMaryse(@Path("numero") String numero);
 
     @GET("bracongo-api/plaintes/maryse/client/{numero}")
-    Call<List<Plainte>> getPlaintesClientMaryse(@Path("numero") String numero);
+    Observable<List<Plainte>> getPlaintesClientMaryse(@Path("numero") String numero);
 
     @GET("backendapi/rest/client/ventes/{numero}/{password}")
     Call<VenteReponse> getVentes(@Path("numero") String numero, @Path("password") String password);
 
-    @GET("clientapi/rest/plaintes/{numero}")
-    Call<PlainteReponse> getPlaintes(@Path("numero") String numero);
 
     @GET("clientapi/rest/messages/{numero}/{password}")
     Call<MessageReponse> getMessages(@Path("numero") String numero, @Path("password") String password);

@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey_10"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.royken.bracongo.bracongosc.activity.PlainteFragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -14,4 +15,15 @@
         android:layout_height="match_parent"
         android:divider="@android:color/transparent"
         android:dividerHeight="10.0dp"/>
+    <com.example.kloadingspin.KLoadingSpin
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:backgroundColor="@color/blue_grey_900"
+        app:primarySpinnerColor="#ffffff"
+        app:rotationSpeedInMs="3000"
+        app:text="Recherche des remises ..."
+        app:secondarySpinnerColor="#FF9800"
+        app:textColor="#ffffff"
+        app:textSize="20" />
 </FrameLayout>
