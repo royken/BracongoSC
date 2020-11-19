@@ -5,15 +5,17 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.appbar.AppBarLayout;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.AchatMoisDataAdapter;
 import com.royken.bracongo.bracongosc.adapter.ProduitMoisCircuitAdapter;
@@ -127,8 +129,8 @@ public class VenteCircuitFragment extends Fragment {
         hectoTotalBiTvw = (TextView) rootView.findViewById(R.id.hectoTotalBi);
         hectoTotalBgTvw = (TextView) rootView.findViewById(R.id.hectoTotalBg);
         hectoTotalPetTvw = (TextView) rootView.findViewById(R.id.hectoTotalPet);
-        AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
-        title = (TextView) bar.findViewById(R.id.title);
+        //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
+        //title = (TextView) bar.findViewById(R.id.title);
 
         return rootView;
     }
@@ -210,7 +212,7 @@ public class VenteCircuitFragment extends Fragment {
         // Call after onPreExecute method
         protected Void doInBackground(String... urls) {
             //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
+            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443","");
             WebService service = retrofit.create(WebService.class);
             Call<List<AchatProduitMois>> call = service.getHistoAchatsMoisCircuit(circuit);
             call.enqueue(new Callback<List<AchatProduitMois>>() {
@@ -295,7 +297,7 @@ public class VenteCircuitFragment extends Fragment {
         // Call after onPreExecute method
         protected Void doInBackground(String... urls) {
             //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
+            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443","");
             WebService service = retrofit.create(WebService.class);
             Call<List<ProduitMois>> call = service.getProduitsAchatsMoisCircuit(circuit);
             call.enqueue(new Callback<List<ProduitMois>>() {

@@ -21,7 +21,7 @@
             android:orientation="vertical"
             android:padding="10dp">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -180,9 +180,9 @@
 
                     </LinearLayout>
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -374,9 +374,9 @@
                     </LinearLayout>
 
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -404,7 +404,7 @@
                             android:gravity="center"
                             android:orientation="vertical">
 
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/itineraireBtn"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -434,7 +434,7 @@
                             android:gravity="center"
                             android:orientation="vertical">
 
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/remiseBtn"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -464,7 +464,7 @@
                             android:gravity="center"
                             android:orientation="vertical">
 
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/achatMoisBtn"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -508,7 +508,7 @@
                             android:gravity="center"
                             android:orientation="vertical">
 
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/achatAnneBtn"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -537,7 +537,7 @@
                             android:gravity="center"
                             android:orientation="vertical">
 
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/materielBtn"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -566,7 +566,7 @@
                             android:gravity="center"
                             android:orientation="vertical">
 
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/plainteBtn"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -590,7 +590,7 @@
                     </LinearLayout>
 
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
 

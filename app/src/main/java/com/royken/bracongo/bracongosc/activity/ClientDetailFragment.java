@@ -6,12 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -19,10 +13,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.j256.ormlite.dao.Dao;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.Client;
+import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -71,6 +74,7 @@ public class ClientDetailFragment extends Fragment {
     private TextView emballagesTvw;
     private TextView consEmballagesTvw;
 
+
     private FloatingActionButton remiseBtn;
     private FloatingActionButton achatsMoisBtn;
     private FloatingActionButton achatsAnneeBtn;
@@ -80,6 +84,8 @@ public class ClientDetailFragment extends Fragment {
 
 
     private OnFragmentInteractionListener mListener;
+
+    private ClientViewModel clientViewModel;
 
     private TextView title;
 
@@ -119,8 +125,8 @@ public class ClientDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
-        title = (TextView) bar.findViewById(R.id.title);
+       // AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
+       // title = (TextView) bar.findViewById(R.id.title);
         View rootView = inflater.inflate(R.layout.fragment_client_detail, container, false);
         nomTvw = (TextView) rootView.findViewById(R.id.nomValue);
         compteTvw = (TextView) rootView.findViewById(R.id.compteValue);
@@ -224,31 +230,29 @@ public class ClientDetailFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        try {
-            title.setText("DETAILS CLIENT");
-            clientsDao = getHelper().getClientDao();
+//            title.setText("DETAILS CLIENT");
+            clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
             Log.i("CLIENTID", idClient+"");
-            client = clientsDao.queryForId(idClient);
-            Log.i("CLIENT : ", client.toString());
-            nomTvw.setText(client.getNom());
-            compteTvw.setText(client.getNumero());
-            quartierTvw.setText(client.getQuartier());
-            communeTvw.setText(client.getCommune());
-            proprioTvw.setText(client.getNomProprietaire());
-            adresseTvw.setText(client.getAdresse());
-            telephoneTvw.setText(client.getTelephone());
-            typeTvw.setText(client.getType());
-            regimeTvw.setText(client.getRegime());
-            categorieTvw.setText(client.getCategorie());
-            //decorationTvw.setText(client.getDec);
-            nocontratTvw.setText(client.getNumeroContrat());
-            datecreationTvw.setText(getDateString(client.getDateCreation()));
-            dernierAchatTvw.setText(getDateString(client.getDernierAchat()));
-            consEmballagesTvw.setText(client.getConsignationEmballages()+"");
-            emballagesTvw.setText(client.getEmballage()+"");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            clientViewModel.getById(idClient).observe(getViewLifecycleOwner(), client_ -> {
+                client = client_;
+                Log.i("CLIENT : ", client.toString());
+                nomTvw.setText(client.getNom());
+                compteTvw.setText(client.getNumero());
+                quartierTvw.setText(client.getQuartier());
+                communeTvw.setText(client.getCommune());
+                proprioTvw.setText(client.getNomProprietaire());
+                adresseTvw.setText(client.getAdresse());
+                telephoneTvw.setText(client.getTelephone());
+                typeTvw.setText(client.getType());
+                regimeTvw.setText(client.getRegime());
+                categorieTvw.setText(client.getCategorie());
+                //decorationTvw.setText(client.getDec);
+                nocontratTvw.setText(client.getNumeroContrat());
+                datecreationTvw.setText(getDateString(client.getDateCreation()));
+                dernierAchatTvw.setText(getDateString(client.getDernierAchat()));
+                consEmballagesTvw.setText(client.getConsignationEmballages()+"");
+                emballagesTvw.setText(client.getEmballage()+"");
+            });
     }
 
     // TODO: Rename method, update argument and hook method into UI event

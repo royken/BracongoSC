@@ -7,15 +7,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -26,6 +17,18 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.SearchView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
 import com.royken.bracongo.bracongosc.MainActivity;
@@ -37,8 +40,12 @@ import com.royken.bracongo.bracongosc.entities.Client;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.network.util.AndroidNetworkUtility;
+import com.royken.bracongo.bracongosc.viewmodel.CircuitViewModel;
+import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -54,8 +61,7 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
     private DatabaseHelper databaseHelper = null;
     private ClientAdapter clientAdapter;
     private List<Client> clients;
-    public static final String PREFS_NAME = "com.bracongo.bracongoSCFile";
-    SharedPreferences settings ;
+    private SharedPreferences sharedPreferences;
     Dao<Client, Integer> clientsDao;
     private String circuit;
 
@@ -66,6 +72,8 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
     private TextView title;
     private RecyclerView recyclerView;
     private ClientRecycleAdapter clientRecycleAdapter;
+
+    private ClientViewModel clientViewModel;
 
     private OnFragmentInteractionListener mListener;
 
@@ -80,26 +88,21 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        try {
-            title.setText("Accueil" );
-            clientsDao = getHelper().getClientDao();
-            clients = clientsDao.queryForAll();
-           // getListView().setTextFilterEnabled(true);
+          //  title.setText("Accueil" );
+            clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
+            clientRecycleAdapter = new ClientRecycleAdapter(getActivity(), this);
             setupSearchView();
-            //clientAdapter = new ClientAdapter(getActivity(),clients);
-            clientRecycleAdapter = new ClientRecycleAdapter(clients,getActivity(), this);
-            recyclerView.setAdapter(clientRecycleAdapter);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-           // setListAdapter(clientAdapter);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            clientViewModel.getAllClients().observe(getViewLifecycleOwner(), clientList -> {
+                clientRecycleAdapter.setData(clientList);
+                recyclerView.setAdapter(clientRecycleAdapter);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
-        title = (TextView) bar.findViewById(R.id.title);
+        //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
+       // title = (TextView) bar.findViewById(R.id.title);
         View rootView = inflater.inflate(R.layout.activity_list_client, container, false);
         mSearchView = (SearchView) rootView.findViewById(R.id.searchView);
         recyclerView = rootView.findViewById(R.id.recycler_view);
@@ -107,7 +110,27 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
         refreshCircuitBtn = (FloatingActionButton) rootView.findViewById(R.id.refreshBtn);
         modifierCircuitBtn = (FloatingActionButton) rootView.findViewById(R.id.changerCircBtn);
 
-        ventesBtn.setOnClickListener(new View.OnClickListener() {
+        MasterKey masterKey = null;
+
+
+        try {
+            masterKey = new MasterKey.Builder(getContext(),MasterKey.DEFAULT_MASTER_KEY_ALIAS).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+            sharedPreferences = EncryptedSharedPreferences.create(
+                    getContext(),
+                    "com.bracongo.bracongosc.sharedPrefs",
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+
+
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+       /* ventesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 settings = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -121,9 +144,9 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
                 ft.addToBackStack(null);
                 ft.commit();
             }
-        });
+        });*/
 
-        refreshCircuitBtn.setOnClickListener(new View.OnClickListener() {
+       /* refreshCircuitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 settings = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -138,27 +161,26 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
                         Toast.makeText(getActivity(), "Aucune connexion au serveur. Veuillez reéssayer plus tard", Toast.LENGTH_LONG).show();
                     } else {
 
-                        new ClientsTask().execute();
+                       // new ClientsTask().execute();
                     }
                 }
 
             }
         });
+        */
 
         modifierCircuitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                settings = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putBoolean("com.bracongo.data", false);
-                editor.commit();
-                Intent intent = new Intent(getActivity(),
-                        LoadCircuitActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                startActivity(intent);
-                getActivity().finish();
+                sharedPreferences.edit().putBoolean("config.clientLoaded", false).apply();
+                Fragment fragment = ChoixCircuitSuiviFragment.newInstance();
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.fragment,fragment);
+                ft.addToBackStack(null);
+                ft.commit();
             }
         });
+
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -213,13 +235,6 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
 
 
 
-    private DatabaseHelper getHelper() {
-        if (databaseHelper == null) {
-            databaseHelper = new DatabaseHelper(getActivity());
-        }
-        return databaseHelper;
-    }
-
     @Override
     public void onClientSelected(Client client) {
         Fragment fragment = ClientDetailFragment.newInstance(client.getId());
@@ -230,7 +245,7 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
     }
 
 
-    private class ClientsTask extends AsyncTask<String, Void, Void> {
+ /*   private class ClientsTask extends AsyncTask<String, Void, Void> {
         // Required initialization
 
         private ProgressDialog Dialog = new ProgressDialog(getActivity());
@@ -244,7 +259,7 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
         // Call after onPreExecute method
         protected Void doInBackground(String... urls) {
             //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
+            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443","");
             WebService service = retrofit.create(WebService.class);
             Call<List<Client>> call = service.getClientsCircuit(circuit);
             call.enqueue(new Callback<List<Client>>() {
@@ -297,6 +312,7 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
         }
 
     }
+    */
 
     /**
      * This interface must be implemented by activities that contain this

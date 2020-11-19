@@ -5,10 +5,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +12,11 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.ListFragment;
+
+import com.google.android.material.appbar.AppBarLayout;
 import com.j256.ormlite.dao.Dao;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.MaterielAdapter;
@@ -108,8 +109,8 @@ public class MaterielFragment extends ListFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_materiel, container, false);
-        AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
-        title = (TextView) bar.findViewById(R.id.title);
+        //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
+        //title = (TextView) bar.findViewById(R.id.title);
       //  list = (ListView) rootView.findViewById(R.id.list);
 
         return rootView;
@@ -130,7 +131,7 @@ public class MaterielFragment extends ListFragment {
         // Call after onPreExecute method
         protected Void doInBackground(String... urls) {
             //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
+            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443", "");
             WebService service = retrofit.create(WebService.class);
             Call<List<Materiel>> call = service.getMaterielsClientMaryse(client.getNumero().trim());
             call.enqueue(new Callback<List<Materiel>>() {

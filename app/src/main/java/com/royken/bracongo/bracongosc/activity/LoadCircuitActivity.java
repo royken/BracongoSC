@@ -5,13 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
@@ -81,7 +82,7 @@ public class LoadCircuitActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Aucune connexion au serveur. Veuillez reéssayer plus tard", Toast.LENGTH_LONG).show();
                         } else {
 
-                            new ClientsTask().execute();
+                          //  new ClientsTask().execute();
                         }
                     }
 
@@ -92,7 +93,7 @@ public class LoadCircuitActivity extends AppCompatActivity {
 
         }
     }
-
+/*
     private class ClientsTask extends AsyncTask<String, Void, Void> {
         // Required initialization
 
@@ -111,7 +112,7 @@ public class LoadCircuitActivity extends AppCompatActivity {
         // Call after onPreExecute method
         protected Void doInBackground(String... urls) {
             //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
+            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443", "");
             WebService service = retrofit.create(WebService.class);
             Call<List<Client>> call = service.getClientsCircuit(circuit);
             call.enqueue(new Callback<List<Client>>() {
@@ -165,7 +166,7 @@ public class LoadCircuitActivity extends AppCompatActivity {
         }
 
     }
-
+*/
     private DatabaseHelper getHelper() {
         if (databaseHelper == null) {
             //databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);

@@ -8,8 +8,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +15,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -223,7 +224,7 @@ public class VenteFragment extends Fragment {
         // Call after onPreExecute method
         protected Void doInBackground(String... urls) {
             //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
+            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443","");
             WebService service = retrofit.create(WebService.class);
             Call<VenteReponse> call = service.getVentes(client.getNumero().trim(),getIntFromClient(client.getNumero().trim())+"");
             call.enqueue(new Callback<VenteReponse>() {

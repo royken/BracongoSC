@@ -4,10 +4,6 @@ import android.app.ProgressDialog;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +12,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.ListFragment;
+
+import com.google.android.material.appbar.AppBarLayout;
 import com.j256.ormlite.dao.Dao;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.PlainteAdapter;
@@ -33,7 +33,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 /**
- * A simple {@link Fragment} subclass.
+ * A simple {@link ListFragment} subclass.
  * Activities that contain this fragment must implement the
  * {@link PlainteFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
@@ -119,8 +119,8 @@ public class PlainteFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_plainte, container, false);
-        AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
-        title = (TextView) bar.findViewById(R.id.title);
+        //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
+        //title = (TextView) bar.findViewById(R.id.title);
         //list = (ListView) rootView.findViewById(R.id.list);
         return rootView;
     }
@@ -170,7 +170,7 @@ public class PlainteFragment extends ListFragment {
         // Call after onPreExecute method
         protected Void doInBackground(String... urls) {
             //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
+            Retrofit retrofit = null;
             WebService service = retrofit.create(WebService.class);
             Call<List<Plainte>> call = service.getPlaintesClientMaryse(client.getNumero().trim());
             call.enqueue(new Callback<List<Plainte>>() {

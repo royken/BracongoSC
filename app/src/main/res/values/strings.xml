@@ -6,4 +6,11 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="action_circuits">Changer de Circuit</string>
+    <string name="version_unknown">Unknown</string>
+    <string name="app_version">Version</string>
+
+    <string-array name="regime_list">
+        <item>PVE</item>
+        <item>MIXTE</item>
+    </string-array>
 </resources>

@@ -6,9 +6,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.appbar.AppBarLayout;
 import com.j256.ormlite.dao.Dao;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.RemiseAdapter;
@@ -101,7 +102,7 @@ public class RemiseFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         try {
-            title.setText("HISTO REMISES");
+            //title.setText("HISTO REMISES");
             clientsDao = getHelper().getClientDao();
             Log.i("IDCLIENT", idClient+"");
             client = clientsDao.queryForId(idClient);
@@ -120,8 +121,8 @@ public class RemiseFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_remise, container, false);
-        AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
-        title = (TextView) bar.findViewById(R.id.title);
+        //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
+        //title = (TextView) bar.findViewById(R.id.title);
         list = (ListView) rootView.findViewById(R.id.list);
         Log.i("IDCLIENT 22", idClient+"");
 
@@ -198,7 +199,7 @@ public class RemiseFragment extends Fragment {
         // Call after onPreExecute method
         protected Void doInBackground(String... urls) {
             //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
+            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443", "");
             WebService service = retrofit.create(WebService.class);
             Call<List<RemiseInfo>> call = service.getHistoRemise(client.getNumero().trim(),getIntFromClient(client.getNumero().trim())+"");
             call.enqueue(new Callback<List<RemiseInfo>>() {

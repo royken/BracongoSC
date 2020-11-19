@@ -6,6 +6,9 @@ import com.google.gson.GsonBuilder;
 import com.royken.bracongo.bracongosc.entities.AchatProduit;
 import com.royken.bracongo.bracongosc.entities.AchatProduitMois;
 import com.royken.bracongo.bracongosc.entities.Client;
+import com.royken.bracongo.bracongosc.entities.Compte;
+import com.royken.bracongo.bracongosc.entities.LoginData;
+import com.royken.bracongo.bracongosc.entities.LoginResponse;
 import com.royken.bracongo.bracongosc.entities.Materiel;
 import com.royken.bracongo.bracongosc.entities.MessageReponse;
 import com.royken.bracongo.bracongosc.entities.Plainte;
@@ -16,10 +19,13 @@ import com.royken.bracongo.bracongosc.entities.VenteReponse;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 /**
@@ -28,9 +34,9 @@ import retrofit2.http.Path;
 
 public interface WebService {
 
-    @GET("bracongo-api/clients/circuit/{circuit}")
+  /*  @GET("bracongo-api/clients/circuit/{circuit}")
     Call<List<Client>> getClientsCircuit(@Path("circuit") String circuit);
-
+*/
     @GET("bracongo-api/achats/remise/histo/{numero}/{password}")
     Call<List<RemiseInfo>> getHistoRemise(@Path("numero") String numero, @Path("password") String password);
 
@@ -64,18 +70,12 @@ public interface WebService {
     @GET("clientapi/rest/messages/{numero}/{password}")
     Call<MessageReponse> getMessages(@Path("numero") String numero, @Path("password") String password);
 
-    public static Gson gson = new GsonBuilder()
-            .disableHtmlEscaping()
-            .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-            .setDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SSS'Z'")
-            .setPrettyPrinting()
-            .serializeNulls()
-            .excludeFieldsWithoutExposeAnnotation().create();
+    @POST("suiviclient/v1/users/register")
+    Observable<LoginResponse> register(@Body LoginData loginData);
 
-    public static final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("http://192.168.1.100:8080/")
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build();
+    @POST("suiviclient/v1/compte/register")
+    Observable<Compte> saveCompte(@Body Compte data);
 
-
+    @GET("bracongo-api/clients/circuit/{circuit}")
+    Observable<List<Client>> getClientsCircuit(@Path("circuit") String circuit);
 }

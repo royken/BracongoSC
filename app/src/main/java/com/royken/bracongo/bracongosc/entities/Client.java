@@ -1,5 +1,10 @@
 package com.royken.bracongo.bracongosc.entities;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.j256.ormlite.field.DatabaseField;
@@ -12,101 +17,103 @@ import java.util.Date;
  * Created by vr.kenfack on 30/08/2017.
  */
 
-@DatabaseTable
+@Entity(tableName = "clients")
 public class Client implements Serializable {
 
-    @DatabaseField(columnName = "id",generatedId = true)
+    @NonNull
+    @PrimaryKey
+    @ColumnInfo(name = "id")
     @Expose(serialize = false, deserialize = false)
     private int id;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("raisonSociale")
-    @DatabaseField(columnName = "nom")
+    @ColumnInfo(name = "nom")
     private String nom;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("nomProprietaire")
-    @DatabaseField(columnName = "nomProprietaire")
+    @ColumnInfo(name = "nomProprietaire")
     private String nomProprietaire;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("numero")
-    @DatabaseField(columnName = "numero")
+    @ColumnInfo(name = "numero")
     private String numero;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("adresse")
-    @DatabaseField(columnName = "adresse")
+    @ColumnInfo(name = "adresse")
     private String adresse;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("quartier")
-    @DatabaseField(columnName = "quartier")
+    @ColumnInfo(name = "quartier")
     private String quartier;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("commune")
-    @DatabaseField(columnName = "commune")
+    @ColumnInfo(name = "commune")
     private String commune;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("ville")
-    @DatabaseField(columnName = "ville")
+    @ColumnInfo(name = "ville")
     private String ville;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("telephone")
-    @DatabaseField(columnName = "telephone")
+    @ColumnInfo(name = "telephone")
     private String telephone;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("type")
-    @DatabaseField(columnName = "type")
+    @ColumnInfo(name = "type")
     private String type;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("categorie")
-    @DatabaseField(columnName = "categorie")
+    @ColumnInfo(name = "categorie")
     private String categorie;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("regime")
-    @DatabaseField(columnName = "regime")
+    @ColumnInfo(name = "regime")
     private String regime;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("latitude")
-    @DatabaseField(columnName = "latitude")
+    @ColumnInfo(name = "latitude")
     private String latitude;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("longitude")
-    @DatabaseField(columnName = "longitude")
+    @ColumnInfo(name = "longitude")
     private String longitude;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("dernierAchat")
-    @DatabaseField(columnName = "dernierAchat")
+    @ColumnInfo(name = "dernierAchat")
     private Date dernierAchat;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("dateCreation")
-    @DatabaseField(columnName = "dateCreation")
+    @ColumnInfo(name = "dateCreation")
     private Date dateCreation;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("numeroContrat")
-    @DatabaseField(columnName = "numeroContrat")
+    @ColumnInfo(name = "numeroContrat")
     private String numeroContrat;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("emballage")
-    @DatabaseField(columnName = "emballage")
+    @ColumnInfo(name = "emballage")
     private Integer emballage;
 
     @Expose(serialize = true, deserialize = true)
     @SerializedName("consignationEmballages")
-    @DatabaseField(columnName = "consignationEmballages")
+    @ColumnInfo(name = "consignationEmballages")
     private Integer consignationEmballages;
 
     public Client() {

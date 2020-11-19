@@ -1,15 +1,17 @@
 package com.royken.bracongo.bracongosc.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
@@ -27,9 +29,7 @@ public class ClientRecycleAdapter extends RecyclerView.Adapter<ClientRecycleAdap
     private LayoutInflater mInflater;
     private ClientsAdapterListener listener;
 
-    public ClientRecycleAdapter(List<Client> clients, Context mContext, ClientsAdapterListener listener) {
-        this.clients = clients;
-        this.clientsFiltres = clients;
+    public ClientRecycleAdapter(Context mContext, ClientsAdapterListener listener) {
         this.mContext = mContext;
         this.listener = listener;
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -120,6 +120,7 @@ public class ClientRecycleAdapter extends RecyclerView.Adapter<ClientRecycleAdap
         TextView tv_regime ;
         TextView tv_categorie ;
         ImageView img ;
+
         public MyViewHolder(View itemView) {
             super(itemView);
             tv_Nom = (TextView)itemView.findViewById(R.id.nom);
@@ -140,5 +141,10 @@ public class ClientRecycleAdapter extends RecyclerView.Adapter<ClientRecycleAdap
 
     public interface ClientsAdapterListener {
         void onClientSelected(Client client);
+    }
+
+    public void setData(List<Client> clients) {
+        this.clients = clients;
+        this.clientsFiltres = clients;
     }
 }

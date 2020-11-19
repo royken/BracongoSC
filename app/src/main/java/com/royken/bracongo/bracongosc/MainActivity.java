@@ -4,24 +4,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.j256.ormlite.dao.Dao;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import com.royken.bracongo.bracongosc.activity.AjoutCompteFragment;
+import com.royken.bracongo.bracongosc.activity.ChoixCdCircuitFragment;
+import com.royken.bracongo.bracongosc.activity.ChoixCircuitSuiviFragment;
 import com.royken.bracongo.bracongosc.activity.ClientDetailFragment;
 import com.royken.bracongo.bracongosc.activity.ClientFragment;
+import com.royken.bracongo.bracongosc.activity.CompteFragment;
 import com.royken.bracongo.bracongosc.activity.HistoAchatsAnneeFragment;
 import com.royken.bracongo.bracongosc.activity.HistoAchatsMoisFragment;
+import com.royken.bracongo.bracongosc.activity.HomeFragment;
 import com.royken.bracongo.bracongosc.activity.ListClientActivity;
 import com.royken.bracongo.bracongosc.activity.LoadCircuitActivity;
 import com.royken.bracongo.bracongosc.activity.MaterielFragment;
@@ -31,9 +36,8 @@ import com.royken.bracongo.bracongosc.activity.RemiseFragment;
 import com.royken.bracongo.bracongosc.activity.VenteCircuitFragment;
 import com.royken.bracongo.bracongosc.activity.VenteFragment;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
-import com.royken.bracongo.bracongosc.entities.Client;
 
-public class MainActivity extends AppCompatActivity implements ClientFragment.OnFragmentInteractionListener, VenteFragment.OnFragmentInteractionListener, PlainteFragment.OnFragmentInteractionListener,MessageFragment.OnFragmentInteractionListener,ClientDetailFragment.OnFragmentInteractionListener, RemiseFragment.OnFragmentInteractionListener, HistoAchatsMoisFragment.OnFragmentInteractionListener, HistoAchatsAnneeFragment.OnFragmentInteractionListener, MaterielFragment.OnFragmentInteractionListener, VenteCircuitFragment.OnFragmentInteractionListener, ListClientActivity.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ClientFragment.OnFragmentInteractionListener, VenteFragment.OnFragmentInteractionListener, PlainteFragment.OnFragmentInteractionListener,MessageFragment.OnFragmentInteractionListener,ClientDetailFragment.OnFragmentInteractionListener, RemiseFragment.OnFragmentInteractionListener, HistoAchatsMoisFragment.OnFragmentInteractionListener, HistoAchatsAnneeFragment.OnFragmentInteractionListener, MaterielFragment.OnFragmentInteractionListener, VenteCircuitFragment.OnFragmentInteractionListener, ListClientActivity.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, CompteFragment.OnFragmentInteractionListener, AjoutCompteFragment.OnFragmentInteractionListener, ChoixCdCircuitFragment.OnFragmentInteractionListener, ChoixCircuitSuiviFragment.OnFragmentInteractionListener {
 
     private static final String ARG_CLIENTID = "idClient";
     private DatabaseHelper databaseHelper = null;
@@ -42,12 +46,12 @@ public class MainActivity extends AppCompatActivity implements ClientFragment.On
 
     private int idClient;
     /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
+     * The {@link PagerAdapter} that will provide
      * fragments for each of the sections. We use a
      * {@link FragmentPagerAdapter} derivative, which will keep every
      * loaded fragment in memory. If this becomes too memory intensive, it
      * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     * {@link FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -74,7 +78,12 @@ public class MainActivity extends AppCompatActivity implements ClientFragment.On
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
     */
-        Fragment fragment = ListClientActivity.newInstance();
+        /*Fragment fragment = ListClientActivity.newInstance();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment,fragment);
+        ft.commit();*/
+
+       Fragment fragment = HomeFragment.newInstance();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment,fragment);
         //ft.addToBackStack(null);
