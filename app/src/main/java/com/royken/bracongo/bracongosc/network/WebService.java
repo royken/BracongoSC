@@ -50,7 +50,7 @@ public interface WebService {
     Call<List<ProduitMois>> getProduitsAchatsMoisCircuit(@Path("circuit") String circuit);
 
     @GET("bracongo-api/achats/annee/{numero}/{password}")
-    Call<List<AchatProduitMois>> getHistoAchatsAnnee(@Path("numero") String numero, @Path("password") String password);
+    Observable<List<AchatProduitMois>> getHistoAchatsAnnee(@Path("numero") String numero, @Path("password") String password);
 
     @GET("bracongo-api/achats/circuit/{circuit}")
     Call<List<AchatProduitMois>> getHistoAchatsMoisCircuit(@Path("circuit") String circuit);

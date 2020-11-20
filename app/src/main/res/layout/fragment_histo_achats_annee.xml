@@ -94,6 +94,17 @@
                 android:nestedScrollingEnabled="true" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+    <com.example.kloadingspin.KLoadingSpin
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:backgroundColor="@color/blue_grey_900"
+        app:primarySpinnerColor="#ffffff"
+        app:rotationSpeedInMs="3000"
+        app:text="Recherche des remises ..."
+        app:secondarySpinnerColor="#FF9800"
+        app:textColor="#ffffff"
+        app:textSize="20" />
 
 
 </FrameLayout>
