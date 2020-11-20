@@ -21,7 +21,7 @@ import java.util.Date;
 public class Client implements Serializable {
 
     @NonNull
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     @Expose(serialize = false, deserialize = false)
     private int id;

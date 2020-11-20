@@ -121,7 +121,7 @@ public class PlainteFragment extends ListFragment {
         clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
         clientViewModel.getById(idClient).observe(getViewLifecycleOwner(), client_ -> {
             client = client_;
-            getMaterielData();
+            getPlainteData();
         });
     }
 
@@ -200,7 +200,7 @@ public class PlainteFragment extends ListFragment {
         return hash;
     }
 
-    private void getMaterielData(){
+    private void getPlainteData(){
         spinner.startAnimation();
         spinner.setIsVisible(true);
         Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);

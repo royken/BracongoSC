@@ -18,7 +18,7 @@ public interface CompteDao {
     @Query("select * from comptes ")
     LiveData<List<Compte>> getAllCompte();
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     void insertAllCompte(List<Compte> comptes);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -18,7 +18,7 @@ import com.royken.bracongo.bracongosc.entities.Circuit;
 import com.royken.bracongo.bracongosc.entities.Client;
 import com.royken.bracongo.bracongosc.entities.Compte;
 
-@Database(version = 2, entities = {Circuit.class, CentreDistribution.class, Compte.class, Client.class})
+@Database(version = 3, entities = {Circuit.class, CentreDistribution.class, Compte.class, Client.class})
 @TypeConverters({Converters.class})
 public abstract class ClientDatabase extends RoomDatabase {
 

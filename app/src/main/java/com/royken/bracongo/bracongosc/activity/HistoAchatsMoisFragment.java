@@ -2,6 +2,8 @@ package com.royken.bracongo.bracongosc.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,8 +17,13 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
+import com.example.kloadingspin.KLoadingSpin;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.snackbar.Snackbar;
 import com.j256.ormlite.dao.Dao;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.AchatJourDataAdapter;
@@ -31,12 +38,21 @@ import com.royken.bracongo.bracongosc.entities.RemiseInfo;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.util.Helper;
+import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Function3;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -53,12 +69,8 @@ import retrofit2.Retrofit;
 public class HistoAchatsMoisFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    public static final String PREFS_NAME = "com.bracongo.bracongoSCFile";
-    private DatabaseHelper databaseHelper = null;
     private static final String ARG_CLIENTID = "idClient";
     private int idClient;
-    private ProgressDialog Dialog1 ;
-    private ProgressDialog Dialog2;
     private ListView list;
     private ListView listProduits;
     private AchatJourDataAdapter  achatJourDataAdapter;
@@ -66,12 +78,18 @@ public class HistoAchatsMoisFragment extends Fragment {
     private AchatJourData[] jourData;
     List<AchatProduit> achatProduits;
     List<ProduitMois> produitMois;
-    Dao<Client, Integer> clientsDao;
     private Client client;
 
     private OnFragmentInteractionListener mListener;
 
     private TextView title;
+
+    private ClientViewModel clientViewModel;
+
+    KLoadingSpin spinner;
+    private String accessToken;
+
+    private SharedPreferences sharedPreferences;
 
     public HistoAchatsMoisFragment() {
         // Required empty public constructor
@@ -104,23 +122,60 @@ public class HistoAchatsMoisFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        try {
-            title.setText("HISTO ACHATS DU MOIS");
-            clientsDao = getHelper().getClientDao();
-            Log.i("IDCLIENT", idClient+"");
-            client = clientsDao.queryForId(idClient);
-            Dialog1 = new ProgressDialog(getActivity());
-            Dialog2 = new ProgressDialog(getActivity());
-            Dialog1.setMessage("Récupération des informations...");
-            Dialog2.setMessage("Récupération des informations...");
-            Dialog1.show();
-            Dialog2.show();
-            new AchatsJourTask().execute();
-            new ProduitMoisTask().execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        Toast.makeText(getActivity(),idClient+" received",Toast.LENGTH_LONG).show();
+        clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
+        clientViewModel.getById(idClient).observe(getViewLifecycleOwner(), client_ -> {
+            client = client_;
+            getData();
+        });
+    }
+
+    private void getData() {
+        spinner.startAnimation();
+        spinner.setIsVisible(true);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        Observable.zip(service.getHistoAchatsMois(client.getNumero().trim(),getIntFromClient(client.getNumero().trim())+""), service.getProduitsAchatsMois(client.getNumero().trim(),getIntFromClient(client.getNumero().trim())+""), new BiFunction<List<AchatProduit>, List<ProduitMois>, MergedResponse>() {
+            int i;
+            @Override
+            public MergedResponse apply(List<AchatProduit> achatProduits, List<ProduitMois> produitMois) throws Exception {
+                // Log.i("OBJECTIF", objectifData.toString());
+                return new MergedResponse(produitMois, achatProduits);
+            }
+        }).subscribe(new Observer<MergedResponse>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(MergedResponse mergedResponse) {
+                //Log.i("RESULT", mergedResponse.toString());
+                achatProduits = mergedResponse.getVentesMois();
+                produitMois = mergedResponse.getProduitsMois();
+                // test();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                if (e instanceof SocketTimeoutException) {
+                    spinner.stopAnimation();
+                    spinner.setIsVisible(false);
+                }
+            }
+
+            @Override
+            public void onComplete() {
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        computeAchatData();
+                        computeProduitsData();
+                    }
+                });
+
+            }
+        });
     }
 
     @Override
@@ -130,9 +185,25 @@ public class HistoAchatsMoisFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_histo_achats_mois, container, false);
         list = (ListView) rootView.findViewById(R.id.listAchats);
         listProduits = (ListView) rootView.findViewById(R.id.listProduits);
+        spinner = rootView.findViewById(R.id.spinner);
         //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
         //title = (TextView) bar.findViewById(R.id.title);
-
+        MasterKey masterKey = null;
+        try {
+            masterKey = new MasterKey.Builder(getContext(),MasterKey.DEFAULT_MASTER_KEY_ALIAS).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+            sharedPreferences = EncryptedSharedPreferences.create(
+                    getContext(),
+                    "com.bracongo.bracongosc.sharedPrefs",
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            accessToken = sharedPreferences.getString("user.accessToken", "");
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return rootView;
     }
 
@@ -175,7 +246,7 @@ public class HistoAchatsMoisFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private class AchatsJourTask extends AsyncTask<String, Void, Void> {
+  /*  private class AchatsJourTask extends AsyncTask<String, Void, Void> {
         // Required initialization
 
         private ProgressDialog Dialog = new ProgressDialog(getActivity());
@@ -226,7 +297,7 @@ public class HistoAchatsMoisFragment extends Fragment {
                     Helper.getListViewSize(list);
                     /* FIN MOIS*/
 
-                    Dialog1.dismiss();
+         /*           Dialog1.dismiss();
 
 
                 }
@@ -243,6 +314,8 @@ public class HistoAchatsMoisFragment extends Fragment {
         }
     }
 
+    */
+/*
     private class ProduitMoisTask extends AsyncTask<String, Void, Void> {
         // Required initialization
 
@@ -271,7 +344,7 @@ public class HistoAchatsMoisFragment extends Fragment {
                     Helper.getListViewSize(listProduits);
                     /* FIN MOIS*/
 
-                    Dialog2.dismiss();
+      /*              Dialog2.dismiss();
 
 
                 }
@@ -288,13 +361,8 @@ public class HistoAchatsMoisFragment extends Fragment {
         }
     }
 
-    private DatabaseHelper getHelper() {
-        if (databaseHelper == null) {
-            //databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
-            databaseHelper = new DatabaseHelper(getActivity());
-        }
-        return databaseHelper;
-    }
+    */
+
 
     private static long getIntFromClient(String clientNumber){
         long hash = 0;
@@ -302,5 +370,73 @@ public class HistoAchatsMoisFragment extends Fragment {
             hash += clientNumber.charAt(i) * (i+1);
         }
         return hash;
+    }
+
+    private class MergedResponse{
+        public List<ProduitMois> produitMoisList;
+        public List<AchatProduit> achatProduitList;
+
+
+
+        public List<ProduitMois> getProduitsMois() {
+            return produitMoisList;
+        }
+
+        public List<AchatProduit> getVentesMois() {
+            return achatProduitList;
+        }
+
+
+        public MergedResponse() {
+        }
+
+        public MergedResponse(List<ProduitMois> produitMoisList, List<AchatProduit> achatProduitList){
+            this.produitMoisList = produitMoisList;
+            this.achatProduitList = achatProduitList;
+
+        }
+
+        @Override
+        public String toString() {
+            return "MergedResponse{" +
+                    "produitMoisList=" + produitMoisList +
+                    ", achatProduitList=" + achatProduitList +
+                    '}';
+        }
+    }
+
+    private void computeAchatData(){
+        Calendar cal = Calendar.getInstance();
+        int jour = cal.get(Calendar.DAY_OF_MONTH);
+        jourData = new AchatJourData[jour];
+        for(int i = 0; i < jour; i++){
+            jourData[i] = new AchatJourData();
+        }
+
+        for (AchatProduit achat: achatProduits) {
+            if(achat.getFamille().equalsIgnoreCase("BIERE")){
+                jourData[achat.getJour() - 1].addBi(achat.getQuantite());
+            }
+
+            if(achat.getFamille().equalsIgnoreCase("BG")){
+                jourData[achat.getJour() - 1].addBg(achat.getQuantite());
+            }
+
+            if(achat.getFamille().equalsIgnoreCase("PET")){
+                jourData[achat.getJour() - 1].addPet(achat.getQuantite());
+            }
+            jourData[achat.getJour() - 1].addCA(achat.getMontant());
+            jourData[achat.getJour() - 1].addProduit(achat.getProduit() + ": "+ achat.getQuantite() );
+        }
+
+        achatJourDataAdapter = new AchatJourDataAdapter(getActivity(), Arrays.asList(jourData));
+        list.setAdapter(achatJourDataAdapter);
+        Helper.getListViewSize(list);
+    }
+
+    private void computeProduitsData(){
+        produitMoisAdapter = new ProduitMoisAdapter(getActivity(), produitMois);
+        listProduits.setAdapter(produitMoisAdapter);
+        Helper.getListViewSize(listProduits);
     }
 }

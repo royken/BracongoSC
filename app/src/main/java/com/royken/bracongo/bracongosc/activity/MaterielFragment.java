@@ -2,6 +2,7 @@ package com.royken.bracongo.bracongosc.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,21 +16,35 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.ListFragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
+import com.example.kloadingspin.KLoadingSpin;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.snackbar.Snackbar;
 import com.j256.ormlite.dao.Dao;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.MaterielAdapter;
+import com.royken.bracongo.bracongosc.adapter.PlainteAdapter;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.Client;
 import com.royken.bracongo.bracongosc.entities.Materiel;
+import com.royken.bracongo.bracongosc.entities.Plainte;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.util.Helper;
+import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.List;
 
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -59,6 +74,13 @@ public class MaterielFragment extends ListFragment {
     private OnFragmentInteractionListener mListener;
 
     private TextView title;
+
+    private ClientViewModel clientViewModel;
+
+    KLoadingSpin spinner;
+    private String accessToken;
+
+    private SharedPreferences sharedPreferences;
 
     public MaterielFragment() {
         // Required empty public constructor
@@ -91,17 +113,12 @@ public class MaterielFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        try {
-            title.setText("MATERIELS");
-            clientsDao = getHelper().getClientDao();
-            client = clientsDao.queryForId(idClient);
-            Dialog1 = new ProgressDialog(getActivity());
-            Dialog1.setMessage("Récupération des informations...");
-            Dialog1.show();
-            new AchatsMoisTask().execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        //title.setText("MATERIELS");
+        clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
+        clientViewModel.getById(idClient).observe(getViewLifecycleOwner(), client_ -> {
+            client = client_;
+            getMaterielData();
+        });
     }
 
     @Override
@@ -112,10 +129,27 @@ public class MaterielFragment extends ListFragment {
         //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
         //title = (TextView) bar.findViewById(R.id.title);
       //  list = (ListView) rootView.findViewById(R.id.list);
-
+        spinner = rootView.findViewById(R.id.spinner);
+        list = (ListView) rootView.findViewById(R.id.list);
+        MasterKey masterKey = null;
+        try {
+            masterKey = new MasterKey.Builder(getContext(),MasterKey.DEFAULT_MASTER_KEY_ALIAS).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+            sharedPreferences = EncryptedSharedPreferences.create(
+                    getContext(),
+                    "com.bracongo.bracongosc.sharedPrefs",
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            accessToken = sharedPreferences.getString("user.accessToken", "");
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return rootView;
     }
-
+/*
     private class AchatsMoisTask extends AsyncTask<String, Void, Void> {
         // Required initialization
 
@@ -160,7 +194,7 @@ public class MaterielFragment extends ListFragment {
             Dialog.dismiss();
         }
     }
-
+*/
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -214,5 +248,46 @@ public class MaterielFragment extends ListFragment {
             hash += clientNumber.charAt(i) * (i+1);
         }
         return hash;
+    }
+
+    private void getMaterielData(){
+        spinner.startAnimation();
+        spinner.setIsVisible(true);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        service.getMaterielsClientMaryse(client.getNumero().trim())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<Materiel>>() {
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("ERROR CALL", e.getMessage());
+                        Snackbar.make(getActivity().findViewById(android.R.id.content), "Erreur connexion, essayer ultérieurement", Snackbar.LENGTH_LONG).show();
+                        spinner.stopAnimation();
+                        spinner.setIsVisible(false);
+                        //layout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        spinner.stopAnimation();
+                        spinner.setIsVisible(false);
+                        // layout.setVisibility(View.VISIBLE);
+                        materielAdapter = new MaterielAdapter(materiels, getActivity());
+                        setListAdapter(materielAdapter);
+                        // Helper.getListViewSize(list);
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<Materiel> response) {
+                        materiels = response;
+                    }
+                });
     }
 }

@@ -19,7 +19,7 @@ public interface ClientDao {
     @Query("select * from clients ")
     LiveData<List<Client>> getAllClients();
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     void insertAllClients(List<Client> clients);
 
     @Query("SELECT * FROM clients WHERE id =  :id LIMIT 1")
