@@ -31,6 +31,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
+import com.royken.bracongo.bracongosc.ChoixCircuitFragment;
 import com.royken.bracongo.bracongosc.MainActivity;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.ClientAdapter;
@@ -173,7 +174,7 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
             @Override
             public void onClick(View v) {
                 sharedPreferences.edit().putBoolean("config.clientLoaded", false).apply();
-                Fragment fragment = ChoixCircuitSuiviFragment.newInstance();
+                Fragment fragment = ChoixCircuitFragment.newInstance();
                 FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.fragment,fragment);
                 ft.addToBackStack(null);

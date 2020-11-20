@@ -98,12 +98,12 @@
         android:id="@+id/spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:backgroundColor="@color/blue_grey_900"
+        app:backgroundColor="@color/grey_5"
         app:primarySpinnerColor="#ffffff"
         app:rotationSpeedInMs="3000"
         app:text="Recherche des remises ..."
         app:secondarySpinnerColor="#FF9800"
-        app:textColor="#ffffff"
+        app:textColor="@color/red_900"
         app:textSize="20" />
 
 

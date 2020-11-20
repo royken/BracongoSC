@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.royken.bracongo.bracongosc.ChoixCircuitFragment;
 import com.royken.bracongo.bracongosc.R;
 
 public class HomeFragment extends Fragment {
@@ -80,7 +81,7 @@ public class HomeFragment extends Fragment {
         suiciClient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment fragment = ChoixCircuitSuiviFragment.newInstance();
+                Fragment fragment = ChoixCircuitFragment.newInstance();
                 FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.fragment,fragment);
                 ft.addToBackStack(null);
