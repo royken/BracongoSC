@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.royken.bracongo.bracongosc.R;
@@ -90,6 +91,8 @@ public class ChoixCdCircuitFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_choix_cd_circuit, container, false);
+        TextView title = (TextView) getActivity().findViewById(R.id.title);
+        title.setText("Choix du CD et du Circuit");
         cdRecyclerView = (RecyclerView) rootView.findViewById(R.id.listCd);
         circuitRecyclerView = (RecyclerView) rootView.findViewById(R.id.listCircuits);
         suivantBtn = (Button) rootView.findViewById(R.id.suivant);

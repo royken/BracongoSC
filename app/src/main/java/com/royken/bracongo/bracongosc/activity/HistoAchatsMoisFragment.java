@@ -183,6 +183,8 @@ public class HistoAchatsMoisFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_histo_achats_mois, container, false);
+        TextView title = (TextView) getActivity().findViewById(R.id.title);
+        title.setText("Historique des achats du mois");
         list = (ListView) rootView.findViewById(R.id.listAchats);
         listProduits = (ListView) rootView.findViewById(R.id.listProduits);
         spinner = rootView.findViewById(R.id.spinner);

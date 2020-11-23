@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -15,6 +16,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -36,6 +39,9 @@ import com.royken.bracongo.bracongosc.activity.RemiseFragment;
 import com.royken.bracongo.bracongosc.activity.VenteCircuitFragment;
 import com.royken.bracongo.bracongosc.activity.VenteFragment;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class MainActivity extends AppCompatActivity implements ClientFragment.OnFragmentInteractionListener, VenteFragment.OnFragmentInteractionListener, PlainteFragment.OnFragmentInteractionListener,MessageFragment.OnFragmentInteractionListener,ClientDetailFragment.OnFragmentInteractionListener, RemiseFragment.OnFragmentInteractionListener, HistoAchatsMoisFragment.OnFragmentInteractionListener, HistoAchatsAnneeFragment.OnFragmentInteractionListener, MaterielFragment.OnFragmentInteractionListener, VenteCircuitFragment.OnFragmentInteractionListener, ListClientActivity.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, CompteFragment.OnFragmentInteractionListener, AjoutCompteFragment.OnFragmentInteractionListener, ChoixCdCircuitFragment.OnFragmentInteractionListener, ChoixCircuitSuiviFragment.OnFragmentInteractionListener, ChoixCircuitFragment.OnFragmentInteractionListener {
 
@@ -60,13 +66,40 @@ public class MainActivity extends AppCompatActivity implements ClientFragment.On
      */
     private ViewPager mViewPager;
 
+    private SharedPreferences sharedPreferences;
+
+    private String role;
+
+    private String nom;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        MasterKey masterKey = null;
+        try {
+            masterKey = new MasterKey.Builder(this,MasterKey.DEFAULT_MASTER_KEY_ALIAS).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+            sharedPreferences = EncryptedSharedPreferences.create(
+                    this,
+                    "com.bracongo.bracongosc.sharedPrefs",
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            nom  = sharedPreferences.getString("user.nom", "");
+            role = sharedPreferences.getString("user.role", "");
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        toolbar.setTitle("Bonjour, " + nom);
+        toolbar.setSubtitle(role);
         setSupportActionBar(toolbar);
+        TextView title = findViewById(R.id.title);
+        title.setText("Accueil");
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
      /*   mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());

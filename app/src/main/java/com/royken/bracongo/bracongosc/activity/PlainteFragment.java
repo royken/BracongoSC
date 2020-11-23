@@ -140,6 +140,8 @@ public class PlainteFragment extends ListFragment {
         //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
         //title = (TextView) bar.findViewById(R.id.title);
         //list = (ListView) rootView.findViewById(R.id.list);
+        TextView title = (TextView) getActivity().findViewById(R.id.title);
+        title.setText("Liste des plaintes");
         spinner = rootView.findViewById(R.id.spinner);
         list = (ListView) rootView.findViewById(R.id.list);
         MasterKey masterKey = null;

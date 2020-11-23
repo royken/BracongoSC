@@ -187,6 +187,8 @@ public class HistoAchatsAnneeFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_histo_achats_annee, container, false);
         list = (ListView) rootView.findViewById(R.id.listAchats);
+        TextView title = (TextView) getActivity().findViewById(R.id.title);
+        title.setText("Historique des achats de l'année");
         //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
        // title = (TextView) bar.findViewById(R.id.title);
         spinner = rootView.findViewById(R.id.spinner);

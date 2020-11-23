@@ -126,6 +126,8 @@ public class MaterielFragment extends ListFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_materiel, container, false);
+        TextView title = (TextView) getActivity().findViewById(R.id.title);
+        title.setText("Liste matériels");
         //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
         //title = (TextView) bar.findViewById(R.id.title);
       //  list = (ListView) rootView.findViewById(R.id.list);

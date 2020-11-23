@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.CompteClientRecycleAdapter;
@@ -99,6 +100,8 @@ public class CompteFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_compte, container, false);
+        TextView title = (TextView) getActivity().findViewById(R.id.title);
+        title.setText("Liste des comptes");
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
         ajouterCompteBtn = (Button) rootView.findViewById(R.id.ajouterCompteBtn);
         ajouterCompteBtn.setOnClickListener(new View.OnClickListener() {

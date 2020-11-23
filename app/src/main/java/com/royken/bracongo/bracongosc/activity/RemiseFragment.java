@@ -131,6 +131,8 @@ public class RemiseFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_remise, container, false);
         //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
         //title = (TextView) bar.findViewById(R.id.title);
+        TextView title = (TextView) getActivity().findViewById(R.id.title);
+        title.setText("Historique des remises");
         spinner = rootView.findViewById(R.id.spinner);
         list = (ListView) rootView.findViewById(R.id.list);
         MasterKey masterKey = null;

@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kloadingspin.KLoadingSpin;
@@ -74,6 +75,7 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
     private SearchView mSearchView;
 
     private SharedPreferences sharedPreferences;
+    private TextView title;
 
     public ChoixCircuitFragment() {
         // Required empty public constructor
@@ -107,6 +109,7 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_choix_circuit, container, false);
+        title = (TextView) getActivity().findViewById(R.id.title);
         spinner = rootView.findViewById(R.id.spinner);
         mSearchView = (SearchView) rootView.findViewById(R.id.searchView);
         circuitRecyclerView = rootView.findViewById(R.id.recycler_view);
@@ -161,7 +164,7 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        title.setText("Choix Circuit");
         circuitViewModel = new ViewModelProvider(this).get(CircuitViewModel.class);
         clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
         circuitRecycleAdapter = new CircuitRecycleFilterAdapter(getActivity(), this);

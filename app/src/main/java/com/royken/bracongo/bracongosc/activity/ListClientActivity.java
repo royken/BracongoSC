@@ -89,7 +89,7 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-          //  title.setText("Accueil" );
+            title.setText("Liste clients" );
             clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
             clientRecycleAdapter = new ClientRecycleAdapter(getActivity(), this);
             setupSearchView();
@@ -103,8 +103,9 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
-       // title = (TextView) bar.findViewById(R.id.title);
+
         View rootView = inflater.inflate(R.layout.activity_list_client, container, false);
+        title = (TextView) getActivity().findViewById(R.id.title);
         mSearchView = (SearchView) rootView.findViewById(R.id.searchView);
         recyclerView = rootView.findViewById(R.id.recycler_view);
         ventesBtn = (FloatingActionButton) rootView.findViewById(R.id.ventesBtn);

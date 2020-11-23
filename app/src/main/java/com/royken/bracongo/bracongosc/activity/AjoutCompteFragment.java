@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kloadingspin.KLoadingSpin;
@@ -167,6 +168,8 @@ public class AjoutCompteFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_ajout_compte, container, false);
+        TextView title = (TextView) getActivity().findViewById(R.id.title);
+        title.setText("Ajout Compte");
         parent_view = rootView.findViewById(android.R.id.content);
         nomProprioTxt = (EditText) rootView.findViewById(R.id.nomProprio);
         postnomProprio = (EditText) rootView.findViewById(R.id.postnomProprio);

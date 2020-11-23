@@ -123,6 +123,8 @@ public class ClientDetailFragment extends Fragment {
         // Inflate the layout for this fragment
        // AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
        // title = (TextView) bar.findViewById(R.id.title);
+        TextView title = (TextView) getActivity().findViewById(R.id.title);
+        title.setText("Détails client");
         View rootView = inflater.inflate(R.layout.fragment_client_detail, container, false);
         nomTvw = (TextView) rootView.findViewById(R.id.nomValue);
         compteTvw = (TextView) rootView.findViewById(R.id.compteValue);
