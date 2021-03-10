@@ -33,6 +33,7 @@ import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.AchatJourData;
 import com.royken.bracongo.bracongosc.entities.AchatProduit;
 import com.royken.bracongo.bracongosc.entities.Client;
+import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.entities.ProduitMois;
 import com.royken.bracongo.bracongosc.entities.RemiseInfo;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
@@ -50,9 +51,11 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function3;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -69,6 +72,7 @@ import retrofit2.Retrofit;
 public class HistoAchatsMoisFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private final String PAGE_NAME = "HISTO_ACHAT_ANNEE_CLIENT";
     private static final String ARG_CLIENTID = "idClient";
     private int idClient;
     private ListView list;
@@ -88,6 +92,7 @@ public class HistoAchatsMoisFragment extends Fragment {
 
     KLoadingSpin spinner;
     private String accessToken;
+    private String userName;
 
     private SharedPreferences sharedPreferences;
 
@@ -125,6 +130,7 @@ public class HistoAchatsMoisFragment extends Fragment {
         clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
         clientViewModel.getById(idClient).observe(getViewLifecycleOwner(), client_ -> {
             client = client_;
+            logPage();
             getData();
         });
     }
@@ -201,6 +207,8 @@ public class HistoAchatsMoisFragment extends Fragment {
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             );
             accessToken = sharedPreferences.getString("user.accessToken", "");
+            userName  = sharedPreferences.getString("user.username", "");
+            //logPage();
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -247,124 +255,6 @@ public class HistoAchatsMoisFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-
-  /*  private class AchatsJourTask extends AsyncTask<String, Void, Void> {
-        // Required initialization
-
-        private ProgressDialog Dialog = new ProgressDialog(getActivity());
-        private boolean data;
-
-
-        protected void onPreExecute() {
-            // Dialog.setMessage("Récupération des informations...");
-            // Dialog.show();
-        }
-
-        // Call after onPreExecute method
-        protected Void doInBackground(String... urls) {
-            //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443", "");
-            WebService service = retrofit.create(WebService.class);
-            Call<List<AchatProduit>> call = service.getHistoAchatsMois(client.getNumero().trim(),getIntFromClient(client.getNumero().trim())+"");
-            call.enqueue(new Callback<List<AchatProduit>>() {
-                @Override
-                public void onResponse(Call<List<AchatProduit>> call, Response<List<AchatProduit>> response) {
-                    Log.i("Result....", response.toString());
-                    achatProduits = response.body();
-                    Calendar cal = Calendar.getInstance();
-                    int jour = cal.get(Calendar.DAY_OF_MONTH);
-                    jourData = new AchatJourData[jour];
-                    for(int i = 0; i < jour; i++){
-                        jourData[i] = new AchatJourData();
-                    }
-
-                    for (AchatProduit achat: achatProduits) {
-                        if(achat.getFamille().equalsIgnoreCase("BIERE")){
-                            jourData[achat.getJour() - 1].addBi(achat.getQuantite());
-                        }
-
-                        if(achat.getFamille().equalsIgnoreCase("BG")){
-                            jourData[achat.getJour() - 1].addBg(achat.getQuantite());
-                        }
-
-                        if(achat.getFamille().equalsIgnoreCase("PET")){
-                            jourData[achat.getJour() - 1].addPet(achat.getQuantite());
-                        }
-                        jourData[achat.getJour() - 1].addCA(achat.getMontant());
-                        jourData[achat.getJour() - 1].addProduit(achat.getProduit() + ": "+ achat.getQuantite() );
-                    }
-
-                    achatJourDataAdapter = new AchatJourDataAdapter(getActivity(), Arrays.asList(jourData));
-                    list.setAdapter(achatJourDataAdapter);
-                    Helper.getListViewSize(list);
-                    /* FIN MOIS*/
-
-         /*           Dialog1.dismiss();
-
-
-                }
-                @Override
-                public void onFailure(Call<List<AchatProduit>> call, Throwable t) {
-                    Log.i("Error...", t.toString());
-                }
-            });
-            return null;
-        }
-
-        protected void onPostExecute(Void unused) {
-            Dialog.dismiss();
-        }
-    }
-
-    */
-/*
-    private class ProduitMoisTask extends AsyncTask<String, Void, Void> {
-        // Required initialization
-
-        private ProgressDialog Dialog = new ProgressDialog(getActivity());
-        private boolean data;
-
-
-        protected void onPreExecute() {
-            // Dialog.setMessage("Récupération des informations...");
-            // Dialog.show();
-        }
-
-        // Call after onPreExecute method
-        protected Void doInBackground(String... urls) {
-            //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443", "");
-            WebService service = retrofit.create(WebService.class);
-            Call<List<ProduitMois>> call = service.getProduitsAchatsMois(client.getNumero().trim(),getIntFromClient(client.getNumero().trim())+"");
-            call.enqueue(new Callback<List<ProduitMois>>() {
-                @Override
-                public void onResponse(Call<List<ProduitMois>> call, Response<List<ProduitMois>> response) {
-                    Log.i("Result....", response.toString());
-                    produitMois = response.body();
-                    produitMoisAdapter = new ProduitMoisAdapter(getActivity(), produitMois);
-                    listProduits.setAdapter(produitMoisAdapter);
-                    Helper.getListViewSize(listProduits);
-                    /* FIN MOIS*/
-
-      /*              Dialog2.dismiss();
-
-
-                }
-                @Override
-                public void onFailure(Call<List<ProduitMois>> call, Throwable t) {
-                    Log.i("Error...", t.toString());
-                }
-            });
-            return null;
-        }
-
-        protected void onPostExecute(Void unused) {
-            Dialog.dismiss();
-        }
-    }
-
-    */
-
 
     private static long getIntFromClient(String clientNumber){
         long hash = 0;
@@ -440,5 +330,37 @@ public class HistoAchatsMoisFragment extends Fragment {
         produitMoisAdapter = new ProduitMoisAdapter(getActivity(), produitMois);
         listProduits.setAdapter(produitMoisAdapter);
         Helper.getListViewSize(listProduits);
+    }
+
+    private void logPage() {
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        PageLog page = new PageLog();
+        page.setPage(PAGE_NAME);
+        page.setUtilisateur(userName);
+        page.setClient(client.getNumero().trim());
+        service.pageLog(page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<PageLog>() {
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(PageLog compte) {
+
+                    }
+                });
     }
 }

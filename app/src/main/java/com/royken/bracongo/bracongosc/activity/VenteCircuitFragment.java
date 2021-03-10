@@ -2,6 +2,8 @@ package com.royken.bracongo.bracongosc.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,23 +16,39 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
+import com.example.kloadingspin.KLoadingSpin;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.snackbar.Snackbar;
+import com.royken.bracongo.bracongosc.MainActivity;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.AchatMoisDataAdapter;
 import com.royken.bracongo.bracongosc.adapter.ProduitMoisCircuitAdapter;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.AchatMoisData;
 import com.royken.bracongo.bracongosc.entities.AchatProduitMois;
+import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.entities.ProduitMois;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.util.Helper;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Function3;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -46,8 +64,8 @@ import retrofit2.Retrofit;
  */
 public class VenteCircuitFragment extends Fragment {
     public static final String PREFS_NAME = "com.bracongo.bracongoSCFile";
-    private DatabaseHelper databaseHelper = null;
     private static final String ARG_CLIENTID = "idClient";
+    private final String PAGE_NAME = "VENTE_CIRCUIT";
     private static final String ARG_CIRCUIT = "circuit";
     private ProgressDialog Dialog1 ;
     private ProgressDialog Dialog2;
@@ -85,6 +103,16 @@ public class VenteCircuitFragment extends Fragment {
 
     private TextView title;
 
+    private String accessToken;
+
+    private String userName;
+
+    private SharedPreferences sharedPreferences;
+
+    KLoadingSpin spinner;
+
+    private View parent_view;
+
     public VenteCircuitFragment() {
         // Required empty public constructor
     }
@@ -118,6 +146,7 @@ public class VenteCircuitFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_vente_circuit, container, false);
+        parent_view = rootView.findViewById(android.R.id.content);
         listVw = (ListView) rootView.findViewById(R.id.listAchats);
         produitsVw = (ListView) rootView.findViewById(R.id.listProduits);
         casierTotalTvw = (TextView) rootView.findViewById(R.id.casiersTotal);
@@ -129,8 +158,28 @@ public class VenteCircuitFragment extends Fragment {
         hectoTotalBiTvw = (TextView) rootView.findViewById(R.id.hectoTotalBi);
         hectoTotalBgTvw = (TextView) rootView.findViewById(R.id.hectoTotalBg);
         hectoTotalPetTvw = (TextView) rootView.findViewById(R.id.hectoTotalPet);
+        spinner = rootView.findViewById(R.id.spinner);
+        spinner.setIsVisible(false);
         //AppBarLayout bar = (AppBarLayout)getActivity().findViewById(R.id.appbar);
         //title = (TextView) bar.findViewById(R.id.title);
+        MasterKey masterKey = null;
+        try {
+            masterKey = new MasterKey.Builder(getContext(),MasterKey.DEFAULT_MASTER_KEY_ALIAS).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+            sharedPreferences = EncryptedSharedPreferences.create(
+                    getContext(),
+                    "com.bracongo.bracongosc.sharedPrefs",
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            accessToken = sharedPreferences.getString("user.accessToken", "");
+            userName  = sharedPreferences.getString("user.username", "");
+            //ogPage();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return rootView;
     }
@@ -138,15 +187,16 @@ public class VenteCircuitFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-            title.setText("HISTO ACHATS DU MOIS : " + circuit );
-            Dialog1 = new ProgressDialog(getActivity());
+            //title.setText("HISTO ACHATS DU MOIS : " + circuit );
+            logPage();
+            /*Dialog1 = new ProgressDialog(getActivity());
             Dialog2 = new ProgressDialog(getActivity());
             Dialog1.setMessage("Récupération des informations...");
             Dialog2.setMessage("Récupération des informations...");
             Dialog1.show();
             Dialog2.show();
             new AchatsJourTask().execute();
-            new ProduitMoisTask().execute();
+            new ProduitMoisTask().execute();*/
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -188,7 +238,7 @@ public class VenteCircuitFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private class AchatsJourTask extends AsyncTask<String, Void, Void> {
+   /* private class AchatsJourTask extends AsyncTask<String, Void, Void> {
         // Required initialization
 
         private ProgressDialog Dialog = new ProgressDialog(getActivity());
@@ -265,7 +315,7 @@ public class VenteCircuitFragment extends Fragment {
                     Helper.getListViewSize(listVw);
                     /* FIN MOIS*/
 
-                    Dialog1.dismiss();
+      /*              Dialog1.dismiss();
 
 
                 }
@@ -281,7 +331,8 @@ public class VenteCircuitFragment extends Fragment {
             Dialog.dismiss();
         }
     }
-
+*/
+/*
     private class ProduitMoisTask extends AsyncTask<String, Void, Void> {
         // Required initialization
 
@@ -310,7 +361,7 @@ public class VenteCircuitFragment extends Fragment {
                     Helper.getListViewSize(produitsVw);
                     /* FIN MOIS*/
 
-                    Dialog2.dismiss();
+ /*                   Dialog2.dismiss();
 
 
                 }
@@ -325,5 +376,170 @@ public class VenteCircuitFragment extends Fragment {
         protected void onPostExecute(Void unused) {
             Dialog.dismiss();
         }
+    }
+    */
+
+    private class MergedResponse{
+        public List<AchatProduitMois> achatProduitMois;
+        public List<ProduitMois> produitsMois;
+
+        public List<AchatProduitMois> getAchatProduitMois() {
+            return achatProduitMois;
+        }
+
+        public void setAchatProduitMois(List<AchatProduitMois> achatProduitMois) {
+            this.achatProduitMois = achatProduitMois;
+        }
+
+        public List<ProduitMois> getProduitsMois() {
+            return produitsMois;
+        }
+
+        public void setProduitsMois(List<ProduitMois> produitsMois) {
+            this.produitsMois = produitsMois;
+        }
+
+        public MergedResponse() {
+        }
+
+        public MergedResponse(List<AchatProduitMois> achatProduitMois, List<ProduitMois> produitsMois) {
+            this.achatProduitMois = achatProduitMois;
+            this.produitsMois = produitsMois;
+        }
+
+        @Override
+        public String toString() {
+            return "MergedResponse{" +
+                    "achatProduitMois=" + achatProduitMois +
+                    ", produitsMois=" + produitsMois +
+                    '}';
+        }
+    }
+
+    private void getVentesCircuitData(){
+        spinner.startAnimation();
+        spinner.setIsVisible(true);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        Observable.zip(service.getProduitsAchatsMoisCircuit(circuit), service.getHistoAchatsMoisCircuit(circuit), new BiFunction<List<ProduitMois>, List<AchatProduitMois>, MergedResponse>() {
+            int i;
+            @Override
+            public MergedResponse apply(List<ProduitMois> produitData, List<AchatProduitMois> achatData) throws Exception {
+                // Log.i("OBJECTIF", objectifData.toString());
+                return new MergedResponse(achatData, produitData);
+            }
+        }).subscribe(new Observer<MergedResponse>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(MergedResponse mergedResponse) {
+                //Log.i("RESULT", mergedResponse.toString());
+                produitsMois = mergedResponse.getProduitsMois();
+                achatProduitMois = mergedResponse.getAchatProduitMois();
+                // test();
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                if (e instanceof SocketTimeoutException) {
+                    Snackbar.make(parent_view, "Erreur connexion, essayer ultérieurement", Snackbar.LENGTH_LONG).show();
+                    spinner.stopAnimation();
+                    spinner.setIsVisible(false);
+                }
+            }
+
+            @Override
+            public void onComplete() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Calendar cal = Calendar.getInstance();
+                        int jour = cal.get(Calendar.DAY_OF_MONTH);
+                        achatMoisData = new AchatMoisData[jour];
+                        for(int i = 0; i < jour; i++){
+                            achatMoisData[i] = new AchatMoisData();
+                        }
+
+                        for (AchatProduitMois achat: achatProduitMois) {
+                            casierTotal += achat.getQuantite();
+                            hectoTotal += achat.getHecto();
+                            if(achat.getFamille().equalsIgnoreCase("BIERE")){
+                                achatMoisData[achat.getJour() - 1].addBi(achat.getQuantite());
+                                casierTotalBi += achat.getQuantite();
+                                hectoTotalBi += achat.getHecto();
+                            }
+
+                            if(achat.getFamille().equalsIgnoreCase("BG")){
+                                achatMoisData[achat.getJour() - 1].addBg(achat.getQuantite());
+                                casierTotalBg += achat.getQuantite();
+                                hectoTotalBg += achat.getHecto();
+                            }
+
+                            if(achat.getFamille().equalsIgnoreCase("PET")){
+                                achatMoisData[achat.getJour() - 1].addPet(achat.getQuantite());
+                                casierTotalPet += achat.getQuantite();
+                                hectoTotalPet += achat.getHecto();
+                            }
+                            achatMoisData[achat.getJour() - 1].addCA(achat.getMontant());
+                        }
+
+                        casierTotalTvw.setText(casierTotal + " CS");
+                        casierTotalBiTvw.setText(casierTotalBi + " CS");
+                        casierTotalBgTvw.setText(casierTotalBg + " CS");
+                        casierTotalPetTvw.setText(casierTotalPet + "PK");
+
+                        hectoTotalTvw.setText(String.format("%.0f", hectoTotal) + " Hl");
+                        hectoTotalBiTvw.setText(String.format("%.0f",hectoTotalBi) + " Hl");
+                        hectoTotalBgTvw.setText(String.format("%.0f", hectoTotalBg) + " Hl");
+                        hectoTotalPetTvw.setText(String.format("%.0f", hectoTotalPet) + "Hl");
+
+                        achatMoisDataAdapter = new AchatMoisDataAdapter(getActivity(), Arrays.asList(achatMoisData));
+                        listVw.setAdapter(achatMoisDataAdapter);
+                        Helper.getListViewSize(listVw);
+
+                        produitsAdapter = new ProduitMoisCircuitAdapter(getActivity(), produitsMois);
+                        produitsVw.setAdapter(produitsAdapter);
+                        Helper.getListViewSize(produitsVw);
+                    }
+                });
+            }
+        });
+
+
+    }
+
+    private void logPage() {
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        PageLog page = new PageLog();
+        page.setPage(PAGE_NAME);
+        page.setUtilisateur(userName);
+        service.pageLog(page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<PageLog>() {
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(PageLog compte) {
+
+                    }
+                });
     }
 }

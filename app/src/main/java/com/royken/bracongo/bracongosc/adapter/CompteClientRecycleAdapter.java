@@ -71,7 +71,7 @@ public class CompteClientRecycleAdapter extends RecyclerView.Adapter<CompteClien
         boolean validDsi = compte.isValidationDsi();
         if(!validBac && !validDsi){
             holder.tv_etat.setText("BAC");
-            holder.etatLayout.setBackgroundColor(ContextCompat.getColor(mContext,R.color.yellow_A400));
+            holder.etatLayout.setBackgroundColor(ContextCompat.getColor(mContext,R.color.red_B500));
             holder.compteLayout.setVisibility(View.INVISIBLE);
         }
         if(validBac && !validDsi){
@@ -82,8 +82,8 @@ public class CompteClientRecycleAdapter extends RecyclerView.Adapter<CompteClien
         if(validBac && validDsi){
             holder.etatLayout.setBackgroundColor(ContextCompat.getColor(mContext,R.color.green_700));
             holder.tv_etat.setText("CREE");
-            holder.compteLayout.setVisibility(View.INVISIBLE);
-            holder.tv_numero.setText(compte.getNoCompte().trim());
+            holder.compteLayout.setVisibility(View.VISIBLE);
+            holder.tv_numero.setText(compte.getNoCompte() == null ? "" : compte.getNoCompte().trim());
         }
     }
 

@@ -32,8 +32,10 @@ import com.royken.bracongo.bracongosc.activity.HistoAchatsMoisFragment;
 import com.royken.bracongo.bracongosc.activity.HomeFragment;
 import com.royken.bracongo.bracongosc.activity.ListClientActivity;
 import com.royken.bracongo.bracongosc.activity.LoadCircuitActivity;
+import com.royken.bracongo.bracongosc.activity.LoginActivity;
 import com.royken.bracongo.bracongosc.activity.MaterielFragment;
 import com.royken.bracongo.bracongosc.activity.MessageFragment;
+import com.royken.bracongo.bracongosc.activity.ModificationClientFragment;
 import com.royken.bracongo.bracongosc.activity.PlainteFragment;
 import com.royken.bracongo.bracongosc.activity.RemiseFragment;
 import com.royken.bracongo.bracongosc.activity.VenteCircuitFragment;
@@ -43,7 +45,7 @@ import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-public class MainActivity extends AppCompatActivity implements ClientFragment.OnFragmentInteractionListener, VenteFragment.OnFragmentInteractionListener, PlainteFragment.OnFragmentInteractionListener,MessageFragment.OnFragmentInteractionListener,ClientDetailFragment.OnFragmentInteractionListener, RemiseFragment.OnFragmentInteractionListener, HistoAchatsMoisFragment.OnFragmentInteractionListener, HistoAchatsAnneeFragment.OnFragmentInteractionListener, MaterielFragment.OnFragmentInteractionListener, VenteCircuitFragment.OnFragmentInteractionListener, ListClientActivity.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, CompteFragment.OnFragmentInteractionListener, AjoutCompteFragment.OnFragmentInteractionListener, ChoixCdCircuitFragment.OnFragmentInteractionListener, ChoixCircuitSuiviFragment.OnFragmentInteractionListener, ChoixCircuitFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ClientFragment.OnFragmentInteractionListener, VenteFragment.OnFragmentInteractionListener, PlainteFragment.OnFragmentInteractionListener,MessageFragment.OnFragmentInteractionListener,ClientDetailFragment.OnFragmentInteractionListener, RemiseFragment.OnFragmentInteractionListener, HistoAchatsMoisFragment.OnFragmentInteractionListener, HistoAchatsAnneeFragment.OnFragmentInteractionListener, MaterielFragment.OnFragmentInteractionListener, VenteCircuitFragment.OnFragmentInteractionListener, ListClientActivity.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, CompteFragment.OnFragmentInteractionListener, AjoutCompteFragment.OnFragmentInteractionListener, ChoixCdCircuitFragment.OnFragmentInteractionListener, ChoixCircuitSuiviFragment.OnFragmentInteractionListener, ChoixCircuitFragment.OnFragmentInteractionListener, ModificationClientFragment.OnFragmentInteractionListener, CamionFragment.OnFragmentInteractionListener {
 
     private static final String ARG_CLIENTID = "idClient";
     private DatabaseHelper databaseHelper = null;
@@ -144,8 +146,21 @@ public class MainActivity extends AppCompatActivity implements ClientFragment.On
         if (id == R.id.action_settings) {
             return true;
         }
+        if (id == R.id.action_deconnexion) {
+            sharedPreferences.edit().putString("user.username", "").apply();
+            sharedPreferences.edit().putString("user.accessToken", "").apply();
+            sharedPreferences.edit().putString("user.role", "").apply();
+            sharedPreferences.edit().putString("user.nom", "").apply();
+            sharedPreferences.edit().putBoolean("config.isLogged", false).apply();
+            Intent intent = new Intent(MainActivity.this,
+                    LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+            MainActivity.this.finish();
+            return true;
+        }
         if (id == R.id.action_circuit) {
-            settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            /*settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean("com.bracongo.data", false);
             editor.commit();
@@ -153,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements ClientFragment.On
                     LoadCircuitActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             startActivity(intent);
-            MainActivity.this.finish();
+            MainActivity.this.finish();*/
             return true;
         }
 

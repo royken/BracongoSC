@@ -69,7 +69,7 @@ public class ChoixCircuitSuiviFragment extends Fragment {
     private CircuitViewModel circuitViewModel;
     private ClientViewModel clientViewModel;
     private List<Client> clients;
-    private String circuit;
+    private String circuit_;
     KLoadingSpin spinner;
     private String accessToken;
 
@@ -144,6 +144,7 @@ public class ChoixCircuitSuiviFragment extends Fragment {
                 if(circuit == null){
                     Toast.makeText(getContext(), "La selection du circuit est obligatoire", Toast.LENGTH_LONG).show();
                 }
+                circuit_ = circuit.getCirCodcir().trim();
                 loadClients(circuit.getCirCodcir().trim());
 
             }
@@ -197,6 +198,9 @@ public class ChoixCircuitSuiviFragment extends Fragment {
                         clientViewModel.deleteAllClient();
                         clientViewModel.saveAllClients(clients);
                         sharedPreferences.edit().putBoolean("config.clientLoaded", true).apply();
+                        Log.i("CIRCUITPUT", circuit_);
+                        Toast.makeText(getContext(),"CIRCUIT + " + circuit_,Toast.LENGTH_LONG).show();
+                        sharedPreferences.edit().putString("config.circuit", circuit_).apply();
                         Fragment fragment = ListClientActivity.newInstance();
                         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                         ft.replace(R.id.fragment,fragment);

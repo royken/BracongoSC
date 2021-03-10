@@ -7,10 +7,15 @@ import com.royken.bracongo.bracongosc.entities.AchatProduit;
 import com.royken.bracongo.bracongosc.entities.AchatProduitMois;
 import com.royken.bracongo.bracongosc.entities.Client;
 import com.royken.bracongo.bracongosc.entities.Compte;
+import com.royken.bracongo.bracongosc.entities.DemandeModificationClient;
+import com.royken.bracongo.bracongosc.entities.DemandeModificationClientDto;
+import com.royken.bracongo.bracongosc.entities.DemandeModificationMotDePasse;
+import com.royken.bracongo.bracongosc.entities.DemandeModificationMotDePasseResult;
 import com.royken.bracongo.bracongosc.entities.LoginData;
 import com.royken.bracongo.bracongosc.entities.LoginResponse;
 import com.royken.bracongo.bracongosc.entities.Materiel;
 import com.royken.bracongo.bracongosc.entities.MessageReponse;
+import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.entities.Plainte;
 import com.royken.bracongo.bracongosc.entities.PlainteReponse;
 import com.royken.bracongo.bracongosc.entities.ProduitMois;
@@ -47,13 +52,13 @@ public interface WebService {
     Observable<List<ProduitMois>> getProduitsAchatsMois(@Path("numero") String numero, @Path("password") String password);
 
     @GET("bracongo-api/achats/produits/circuit/{circuit}")
-    Call<List<ProduitMois>> getProduitsAchatsMoisCircuit(@Path("circuit") String circuit);
+    Observable<List<ProduitMois>> getProduitsAchatsMoisCircuit(@Path("circuit") String circuit);
 
     @GET("bracongo-api/achats/annee/{numero}/{password}")
     Observable<List<AchatProduitMois>> getHistoAchatsAnnee(@Path("numero") String numero, @Path("password") String password);
 
     @GET("bracongo-api/achats/circuit/{circuit}")
-    Call<List<AchatProduitMois>> getHistoAchatsMoisCircuit(@Path("circuit") String circuit);
+    Observable<List<AchatProduitMois>> getHistoAchatsMoisCircuit(@Path("circuit") String circuit);
 
     @GET("bracongo-api/materiels/maryse/client/{numero}")
     Observable<List<Materiel>> getMaterielsClientMaryse(@Path("numero") String numero);
@@ -76,4 +81,13 @@ public interface WebService {
 
     @GET("bracongo-api/clients/circuit/{circuit}")
     Observable<List<Client>> getClientsCircuit(@Path("circuit") String circuit);
+
+    @POST("suiviclient/v1/users/passwordrecover")
+    Observable<DemandeModificationMotDePasseResult> passwordRecover(@Body DemandeModificationMotDePasse data);
+
+    @POST("suiviclient/v1/pagelogs")
+    Observable<PageLog> pageLog(@Body PageLog page);
+
+    @POST("suiviclient/v1/compte/demandemodification")
+    Observable<DemandeModificationClient> demanderModification(@Body DemandeModificationClientDto demande);
 }

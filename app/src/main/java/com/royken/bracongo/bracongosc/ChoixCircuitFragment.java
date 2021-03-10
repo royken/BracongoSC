@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.example.kloadingspin.KLoadingSpin;
 import com.google.android.material.snackbar.Snackbar;
+import com.royken.bracongo.bracongosc.activity.AjoutCompteFragment;
 import com.royken.bracongo.bracongosc.activity.ListClientActivity;
 import com.royken.bracongo.bracongosc.adapter.CircuitRecycleAdapter;
 import com.royken.bracongo.bracongosc.adapter.CircuitRecycleFilterAdapter;
@@ -34,6 +35,7 @@ import com.royken.bracongo.bracongosc.entities.Circuit;
 import com.royken.bracongo.bracongosc.entities.Client;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
+import com.royken.bracongo.bracongosc.util.ModuleChoice;
 import com.royken.bracongo.bracongosc.viewmodel.CircuitViewModel;
 import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
@@ -56,7 +58,7 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_MODULE = "module";
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
@@ -76,6 +78,7 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
 
     private SharedPreferences sharedPreferences;
     private TextView title;
+    private String module;
 
     public ChoixCircuitFragment() {
         // Required empty public constructor
@@ -88,9 +91,10 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
      * @return A new instance of fragment ChoixCircuitFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ChoixCircuitFragment newInstance() {
+    public static ChoixCircuitFragment newInstance(String module) {
         ChoixCircuitFragment fragment = new ChoixCircuitFragment();
         Bundle args = new Bundle();
+        args.putString(ARG_MODULE, module);
         fragment.setArguments(args);
         return fragment;
     }
@@ -99,8 +103,7 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            module = getArguments().getString(ARG_MODULE);
         }
     }
 
@@ -128,13 +131,16 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
             );
             accessToken = sharedPreferences.getString("user.accessToken", "");
             boolean clientLoaded = sharedPreferences.getBoolean("config.clientLoaded", false);
-            if(clientLoaded){
-                Fragment fragment = ListClientActivity.newInstance();
-                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.fragment,fragment);
-                //ft.addToBackStack("choixCircuitSuiviFragment");
-                ft.commit();
+            if(module.equalsIgnoreCase(String.valueOf(ModuleChoice.SUIVI))){
+                if(clientLoaded){
+                    Fragment fragment = ListClientActivity.newInstance();
+                    FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.fragment,fragment);
+                    //ft.addToBackStack("choixCircuitSuiviFragment");
+                    ft.commit();
+                }
             }
+
 
 
         } catch (GeneralSecurityException e) {
@@ -164,7 +170,10 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        title.setText("Choix Circuit");
+        if(module.equalsIgnoreCase(String.valueOf(ModuleChoice.SUIVI)))
+            title.setText("Suivi Client -> Choix Circuit");
+        else
+            title.setText("Création Client -> Choix Circuit");
         circuitViewModel = new ViewModelProvider(this).get(CircuitViewModel.class);
         clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
         circuitRecycleAdapter = new CircuitRecycleFilterAdapter(getActivity(), this);
@@ -208,7 +217,15 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
         if(circuit == null){
             Toast.makeText(getContext(), "La selection du circuit est obligatoire", Toast.LENGTH_LONG).show();
         }
-        loadClients(circuit.getCirCodcir().trim());
+        if(module.equalsIgnoreCase(String.valueOf(ModuleChoice.SUIVI)))
+            loadClients(circuit.getCirCodcir().trim());
+        if(module.equalsIgnoreCase(String.valueOf(ModuleChoice.CREATION))){
+            Fragment fragment = AjoutCompteFragment.newInstance(circuit.getCirCodcir());
+            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.fragment,fragment);
+            ft.addToBackStack(null);
+            ft.commit();
+        }
     }
 
     private void loadClients(String circuit){

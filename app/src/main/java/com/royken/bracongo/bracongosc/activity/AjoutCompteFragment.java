@@ -40,6 +40,7 @@ import com.royken.bracongo.bracongosc.entities.CentreDistribution;
 import com.royken.bracongo.bracongosc.entities.Circuit;
 import com.royken.bracongo.bracongosc.entities.Compte;
 import com.royken.bracongo.bracongosc.entities.LoginResponse;
+import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.viewmodel.CdViewModel;
@@ -69,6 +70,8 @@ public class AjoutCompteFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_CODE_CD = "codeCd";
     private static final String ARG_CODE_CIRCUIT = "codeCircuit";
+
+    private final String PAGE_NAME = "AJOUT_COMPTE";
 
     // TODO: Rename and change types of parameters
     private String codeCd;
@@ -149,6 +152,15 @@ public class AjoutCompteFragment extends Fragment {
         AjoutCompteFragment fragment = new AjoutCompteFragment();
         Bundle args = new Bundle();
         args.putString(ARG_CODE_CD, codeCd);
+        args.putString(ARG_CODE_CIRCUIT, codeCircuit);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
+    public static AjoutCompteFragment newInstance(String codeCircuit) {
+        AjoutCompteFragment fragment = new AjoutCompteFragment();
+        Bundle args = new Bundle();
         args.putString(ARG_CODE_CIRCUIT, codeCircuit);
         fragment.setArguments(args);
         return fragment;
@@ -243,6 +255,7 @@ public class AjoutCompteFragment extends Fragment {
             userName  = sharedPreferences.getString("user.username", "");
             user = sharedPreferences.getString("user.nom", "");
             role = sharedPreferences.getString("user.role", "");
+            logPage();
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -381,7 +394,7 @@ public class AjoutCompteFragment extends Fragment {
         cdViewModel.getAllCds().observe(getViewLifecycleOwner(), cds_ -> {
         });
 
-        cdViewModel.getCdByCode(codeCd).observe(getViewLifecycleOwner(), cd -> {
+        cdViewModel.getCdByCircuit(codeCircuit).observe(getViewLifecycleOwner(), cd -> {
             compte_.setCodeCd(cd.getCdiCodecd());
             compte_.setNomCd(cd.getCdiNomcdi());
         });
@@ -454,6 +467,37 @@ public class AjoutCompteFragment extends Fragment {
                     @Override
                     public void onNext(Compte compte) {
                         compte_ = compte;
+                    }
+                });
+    }
+
+    private void logPage() {
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        PageLog page = new PageLog();
+        page.setPage(PAGE_NAME);
+        page.setUtilisateur(userName);
+        service.pageLog(page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<PageLog>() {
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(PageLog compte) {
+
                     }
                 });
     }

@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -18,6 +19,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -25,11 +28,22 @@ import com.j256.ormlite.dao.Dao;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.Client;
+import com.royken.bracongo.bracongosc.entities.PageLog;
+import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
+import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import retrofit2.Retrofit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,9 +54,8 @@ import java.util.GregorianCalendar;
  * create an instance of this fragment.
  */
 public class ClientDetailFragment extends Fragment {
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private static final String ARG_CLIENTID = "idClient";
+   private static final String ARG_CLIENTID = "idClient";
+    private final String PAGE_NAME = "CLIENT_DETAIL";
 
     public static final String PREFS_NAME = "com.bracongo.bracongoSCFile";
 
@@ -84,6 +97,14 @@ public class ClientDetailFragment extends Fragment {
     private ClientViewModel clientViewModel;
 
     private TextView title;
+
+    private String accessToken;
+
+    private String userName;
+
+    private SharedPreferences sharedPreferences;
+
+    private Button modifierBtn;
 
     public ClientDetailFragment() {
         // Required empty public constructor
@@ -149,6 +170,26 @@ public class ClientDetailFragment extends Fragment {
         itineraireBtn = (FloatingActionButton) rootView.findViewById(R.id.itineraireBtn);
         materielBtn = (FloatingActionButton) rootView.findViewById(R.id.materielBtn);
         plainteBtn = (FloatingActionButton) rootView.findViewById(R.id.plainteBtn);
+        modifierBtn =(Button) rootView.findViewById(R.id.demanderModif);
+
+        MasterKey masterKey = null;
+        try {
+            masterKey = new MasterKey.Builder(getContext(),MasterKey.DEFAULT_MASTER_KEY_ALIAS).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+            sharedPreferences = EncryptedSharedPreferences.create(
+                    getContext(),
+                    "com.bracongo.bracongosc.sharedPrefs",
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            accessToken = sharedPreferences.getString("user.accessToken", "");
+            userName  = sharedPreferences.getString("user.username", "");
+
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         remiseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -204,6 +245,17 @@ public class ClientDetailFragment extends Fragment {
             }
         });
 
+        modifierBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment fragment = ModificationClientFragment.newInstance(idClient);
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.fragment,fragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+        });
+
         /*rootView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -250,6 +302,7 @@ public class ClientDetailFragment extends Fragment {
                 dernierAchatTvw.setText(getDateString(client.getDernierAchat()));
                 consEmballagesTvw.setText(client.getConsignationEmballages()+"");
                 emballagesTvw.setText(client.getEmballage()+"");
+                logPage();
             });
     }
 
@@ -290,6 +343,38 @@ public class ClientDetailFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private void logPage() {
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        PageLog page = new PageLog();
+        page.setPage(PAGE_NAME);
+        page.setUtilisateur(userName);
+        page.setClient(client.getNumero().trim());
+        service.pageLog(page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<PageLog>() {
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(PageLog compte) {
+
+                    }
+                });
     }
 
 

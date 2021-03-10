@@ -20,6 +20,7 @@ public class Compte implements Serializable {
     @PrimaryKey
     @ColumnInfo(name = "id")
     @SerializedName("id")
+    @Expose(serialize = true, deserialize = true)
     private Long id;
 
     @Expose(serialize = true, deserialize = true)

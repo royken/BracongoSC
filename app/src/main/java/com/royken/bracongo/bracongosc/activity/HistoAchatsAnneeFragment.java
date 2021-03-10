@@ -32,6 +32,7 @@ import com.royken.bracongo.bracongosc.entities.AchatMoisData;
 import com.royken.bracongo.bracongosc.entities.AchatProduitMois;
 import com.royken.bracongo.bracongosc.entities.Client;
 import com.royken.bracongo.bracongosc.entities.Materiel;
+import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.util.Helper;
@@ -63,6 +64,7 @@ import retrofit2.Retrofit;
  */
 public class HistoAchatsAnneeFragment extends Fragment {
     private static final String ARG_CLIENTID = "idClient";
+    private final String PAGE_NAME = "HISTO_ACHAT_ANNEE_CLIENT";
     private int idClient;
     private ListView list;
     private Client client;
@@ -78,6 +80,8 @@ public class HistoAchatsAnneeFragment extends Fragment {
 
     KLoadingSpin spinner;
     private String accessToken;
+
+    private String userName;
 
     private SharedPreferences sharedPreferences;
 
@@ -115,6 +119,7 @@ public class HistoAchatsAnneeFragment extends Fragment {
         clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
         clientViewModel.getById(idClient).observe(getViewLifecycleOwner(), client_ -> {
             client = client_;
+            logPage();
             getData();
         });
     }
@@ -203,6 +208,8 @@ public class HistoAchatsAnneeFragment extends Fragment {
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             );
             accessToken = sharedPreferences.getString("user.accessToken", "");
+            userName  = sharedPreferences.getString("user.username", "");
+            //logPage();
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -249,6 +256,38 @@ public class HistoAchatsAnneeFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private void logPage() {
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        PageLog page = new PageLog();
+        page.setPage(PAGE_NAME);
+        page.setUtilisateur(userName);
+        page.setClient(client.getNumero().trim());
+        service.pageLog(page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<PageLog>() {
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(PageLog compte) {
+
+                    }
+                });
     }
 
 

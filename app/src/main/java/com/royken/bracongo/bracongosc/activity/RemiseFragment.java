@@ -31,6 +31,7 @@ import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.RemiseAdapter;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.Client;
+import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.entities.RemiseInfo;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
@@ -61,8 +62,7 @@ import retrofit2.Retrofit;
 public class RemiseFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private final String PAGE_NAME = "REMISE_CLIENT";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -83,6 +83,7 @@ public class RemiseFragment extends Fragment {
 
     KLoadingSpin spinner;
     private String accessToken;
+    private String userName;
 
     private SharedPreferences sharedPreferences;
 
@@ -120,6 +121,7 @@ public class RemiseFragment extends Fragment {
         clientViewModel = new ViewModelProvider(this).get(ClientViewModel.class);
         clientViewModel.getById(idClient).observe(getViewLifecycleOwner(), client_ -> {
             client = client_;
+            logPage();
             getRemiseData();
         });
     }
@@ -146,6 +148,8 @@ public class RemiseFragment extends Fragment {
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             );
             accessToken = sharedPreferences.getString("user.accessToken", "");
+            userName  = sharedPreferences.getString("user.username", "");
+            //logPage();
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -241,6 +245,38 @@ public class RemiseFragment extends Fragment {
                     @Override
                     public void onNext(List<RemiseInfo> response) {
                         remiseInfos = response;
+                    }
+                });
+    }
+
+    private void logPage() {
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        PageLog page = new PageLog();
+        page.setPage(PAGE_NAME);
+        page.setUtilisateur(userName);
+        page.setClient(client.getNumero().trim());
+        service.pageLog(page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<PageLog>() {
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(PageLog compte) {
+
                     }
                 });
     }

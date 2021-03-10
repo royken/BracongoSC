@@ -31,6 +31,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.TableUtils;
+import com.royken.bracongo.bracongosc.CamionFragment;
 import com.royken.bracongo.bracongosc.ChoixCircuitFragment;
 import com.royken.bracongo.bracongosc.MainActivity;
 import com.royken.bracongo.bracongosc.R;
@@ -38,9 +39,11 @@ import com.royken.bracongo.bracongosc.adapter.ClientAdapter;
 import com.royken.bracongo.bracongosc.adapter.ClientRecycleAdapter;
 import com.royken.bracongo.bracongosc.database.DatabaseHelper;
 import com.royken.bracongo.bracongosc.entities.Client;
+import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.network.util.AndroidNetworkUtility;
+import com.royken.bracongo.bracongosc.util.ModuleChoice;
 import com.royken.bracongo.bracongosc.viewmodel.CircuitViewModel;
 import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
@@ -50,6 +53,10 @@ import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.List;
 
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -59,8 +66,7 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
 
     private static final String ARG_CLIENTID = "idClient";
 
-    private DatabaseHelper databaseHelper = null;
-    private ClientAdapter clientAdapter;
+    private final String PAGE_NAME = "LISTE_CLIENTS";
     private List<Client> clients;
     private SharedPreferences sharedPreferences;
     Dao<Client, Integer> clientsDao;
@@ -77,6 +83,9 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
     private ClientViewModel clientViewModel;
 
     private OnFragmentInteractionListener mListener;
+    private String accessToken;
+
+    private String userName;
 
     public static ListClientActivity newInstance() {
         ListClientActivity fragment = new ListClientActivity();
@@ -124,6 +133,11 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
                     EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             );
+            accessToken = sharedPreferences.getString("user.accessToken", "");
+            userName  = sharedPreferences.getString("user.username", "");
+            circuit = sharedPreferences.getString("config.circuit", "");
+            Log.i("CIRCUIT+++++", circuit);
+            logPage();
 
 
         } catch (GeneralSecurityException e) {
@@ -175,11 +189,40 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
             @Override
             public void onClick(View v) {
                 sharedPreferences.edit().putBoolean("config.clientLoaded", false).apply();
-                Fragment fragment = ChoixCircuitFragment.newInstance();
+                Fragment fragment = ChoixCircuitFragment.newInstance(String.valueOf(ModuleChoice.SUIVI));
                 FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.fragment,fragment);
                 ft.addToBackStack(null);
                 ft.commit();
+            }
+        });
+
+        ventesBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(circuit.length() < 5){
+                    Toast.makeText(getActivity(), "Le circuit est invalide, Modifiez-le", Toast.LENGTH_LONG).show();
+                }
+                else{
+                    Fragment fragment = VenteCircuitFragment.newInstance(circuit);
+                    FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.fragment,fragment);
+                    ft.addToBackStack(null);
+                    ft.commit();
+                }
+
+            }
+        });
+
+        refreshCircuitBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment fragment = CamionFragment.newInstance();
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.fragment,fragment);
+                ft.addToBackStack(null);
+                ft.commit();
+
             }
         });
 
@@ -329,6 +372,37 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private void logPage() {
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        PageLog page = new PageLog();
+        page.setPage(PAGE_NAME);
+        page.setUtilisateur(userName);
+        service.pageLog(page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<PageLog>() {
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(PageLog compte) {
+
+                    }
+                });
     }
 
 

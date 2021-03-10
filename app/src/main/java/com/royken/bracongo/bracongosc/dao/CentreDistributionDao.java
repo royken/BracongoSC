@@ -21,6 +21,9 @@ public interface CentreDistributionDao {
     @Query("SELECT * FROM cds WHERE cdiCodecd =  :codeCd LIMIT 1")
     LiveData<CentreDistribution> findByCode(String codeCd);
 
+    @Query("SELECT * FROM cds WHERE cdiCodecd =  substr(:codeCircuit,1 , 2)  LIMIT 1")
+    LiveData<CentreDistribution> findByCircuit(String codeCircuit);
+
     @Insert
     void insertCentreDistribution(CentreDistribution cd);
 

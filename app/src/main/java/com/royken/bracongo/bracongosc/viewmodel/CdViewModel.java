@@ -33,6 +33,10 @@ public class CdViewModel extends AndroidViewModel {
         return cdDao.findByCode(code);
     }
 
+    public LiveData<CentreDistribution> getCdByCircuit(String codeCircuit) {
+        return cdDao.findByCircuit(codeCircuit);
+    }
+
     public void saveCd(CentreDistribution cd) {
         executorService.execute(() -> cdDao.insertCentreDistribution(cd));
     }

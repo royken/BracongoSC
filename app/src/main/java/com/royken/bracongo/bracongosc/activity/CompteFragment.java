@@ -1,5 +1,6 @@
 package com.royken.bracongo.bracongosc.activity;
 
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -10,19 +11,36 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+import com.royken.bracongo.bracongosc.ChoixCircuitFragment;
 import com.royken.bracongo.bracongosc.R;
 import com.royken.bracongo.bracongosc.adapter.CompteClientRecycleAdapter;
 import com.royken.bracongo.bracongosc.entities.Compte;
+import com.royken.bracongo.bracongosc.entities.PageLog;
+import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
+import com.royken.bracongo.bracongosc.network.WebService;
+import com.royken.bracongo.bracongosc.util.ModuleChoice;
 import com.royken.bracongo.bracongosc.viewmodel.CompteViewModel;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import retrofit2.Retrofit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +53,8 @@ public class CompteFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private final String PAGE_NAME = "COMPTE_HOME_PAGE";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -51,6 +71,14 @@ public class CompteFragment extends Fragment {
     private CompteViewModel compteViewModel;
 
     private Button ajouterCompteBtn;
+
+    private SharedPreferences sharedPreferences;
+
+    private String role;
+
+    private String accessToken;
+
+    private String userName;
 
     public CompteFragment() {
         // Required empty public constructor
@@ -104,16 +132,47 @@ public class CompteFragment extends Fragment {
         title.setText("Liste des comptes");
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
         ajouterCompteBtn = (Button) rootView.findViewById(R.id.ajouterCompteBtn);
-        ajouterCompteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment fragment = ChoixCdCircuitFragment.newInstance();
+        MasterKey masterKey = null;
+        try {
+            masterKey = new MasterKey.Builder(getContext(),MasterKey.DEFAULT_MASTER_KEY_ALIAS).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+            sharedPreferences = EncryptedSharedPreferences.create(
+                    getContext(),
+                    "com.bracongo.bracongosc.sharedPrefs",
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            role = sharedPreferences.getString("user.role", "");
+            accessToken = sharedPreferences.getString("user.accessToken", "");
+            userName  = sharedPreferences.getString("user.username", "");
+            logPage();
+            if(! "MERCH".equalsIgnoreCase(role)){
+                Toast.makeText(getContext(),"Vous n'êtes pas autorisé à créer un compte", Toast.LENGTH_LONG).show();
+            }
+            else{
+                ajouterCompteBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Fragment fragment = ChoixCircuitFragment.newInstance(String.valueOf(ModuleChoice.CREATION));
+                        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                        ft.replace(R.id.fragment,fragment);
+                        ft.addToBackStack(null);
+                        ft.commit();
+                /*Fragment fragment = ChoixCdCircuitFragment.newInstance();
                 FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.fragment,fragment);
                 ft.addToBackStack(null);
-                ft.commit();
+                ft.commit();*/
+                    }
+                });
             }
-        });
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         return rootView;
     }
 
@@ -130,5 +189,36 @@ public class CompteFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private void logPage() {
+        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        WebService service = retrofit.create(WebService.class);
+        PageLog page = new PageLog();
+        page.setPage(PAGE_NAME);
+        page.setUtilisateur(userName);
+        service.pageLog(page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<PageLog>() {
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(PageLog compte) {
+
+                    }
+                });
     }
 }

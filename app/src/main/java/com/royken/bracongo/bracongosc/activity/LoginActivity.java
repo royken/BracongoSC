@@ -71,6 +71,10 @@ public class LoginActivity extends AppCompatActivity {
     private CompteDao compteDao;
 
     private  CentreDistributionDao cdDao ;
+    private LinearLayout passforgotLayout;
+
+    private TextView forgotPass;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +88,23 @@ public class LoginActivity extends AppCompatActivity {
         spinner = findViewById(R.id.spinner);
         layout = findViewById(R.id.layout);
         spinner.setIsVisible(false);
+        passforgotLayout = (LinearLayout) findViewById(R.id.passforgotLayout);
+        forgotPass = (TextView) findViewById(R.id.forgotPass);
+        passforgotLayout.setVisibility(View.INVISIBLE);
 
         ClientDatabase clientDatabase = ClientDatabase.getInstance(this);
         circuitDao = clientDatabase.getCircuitDao();
         compteDao = clientDatabase.getCompteDao();
         cdDao = clientDatabase.getCentreDao();
+        forgotPass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this,
+                        ForgotPasswordActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(intent);
+            }
+        });
 
         MasterKey masterKey = null;
         try {
@@ -103,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
             boolean firstLoad = sharedPreferences.getBoolean("config.firstLoad", false);
             boolean isLogged = sharedPreferences.getBoolean("config.isLogged", false);
             String token = sharedPreferences.getString("user.accessToken", "");
-            if(firstLoad || (!isLogged) || (token == null) || token.length() < 1){
+            //if(firstLoad || (!isLogged) || (token == null) || token.length() < 1){
                 // first load stuff, log or register user
                 loginBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -132,14 +148,14 @@ public class LoginActivity extends AppCompatActivity {
 
                     }
                 });
-            }
-            else{
+            //}
+           /* else{
                 Intent intent = new Intent(LoginActivity.this,
                         MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
                 LoginActivity.this.finish();
-            }
+            }*/
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -173,13 +189,18 @@ public class LoginActivity extends AppCompatActivity {
                         spinner.stopAnimation();
                         spinner.setIsVisible(false);
                         layout.setVisibility(View.VISIBLE);
+                        if(!loginResponse.isStatus()){
+                            Snackbar.make(parent_view, "Login/Mdp incorrect", Snackbar.LENGTH_SHORT).show();
+                            passforgotLayout.setVisibility(View.VISIBLE);
+                            return;
+                        }
                         if(!loginResponse.isHasWritgh()){
                             Snackbar.make(parent_view, "Vous n'êtes pas autorisé à utiliser cette application", Snackbar.LENGTH_SHORT).show();
                             return;
                         }
-                        if(!loginResponse.isStatus()){
-                            Snackbar.make(parent_view, "Login/Mdp incorrect", Snackbar.LENGTH_SHORT).show();
-                            return;
+
+                        if(!(loginResponse.getRole().equalsIgnoreCase("MERCH") || loginResponse.getRole().equalsIgnoreCase("SUP") || loginResponse.getRole().equalsIgnoreCase("DIR") || loginResponse.getRole().equalsIgnoreCase("BAC"))){
+
                         }
                         List<CentreDistribution> cds = loginResponse.getCds();
                         List<Circuit> circuits = loginResponse.getCircuits();
@@ -187,11 +208,8 @@ public class LoginActivity extends AppCompatActivity {
                         AsyncTask.execute(() ->
                         {
                             if(cds.size() > 0){
-                                Log.i("DATABASE", "DELETING CD");
                                 cdDao.deleteAllCentreDistribution();
-                                Log.i("DATABASE", "END DELETE");
                                 cdDao.insertAllCentreDistribution(cds);
-                                Log.i("DATABASE", "END INSERT");
                             }
                             if(circuits.size() > 0){
                                 circuitDao.deleteAllCircuit();
@@ -261,5 +279,6 @@ public class LoginActivity extends AppCompatActivity {
         sharedPreferences.edit().putString("user.nom", response.getNom().trim()).apply();
         sharedPreferences.edit().putBoolean("config.firstLoad", false).apply();
         sharedPreferences.edit().putBoolean("config.isLogged", true).apply();
+        sharedPreferences.edit().putBoolean("config.clientLoaded", false).apply();
     }
 }

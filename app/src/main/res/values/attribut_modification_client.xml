@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="modification_attribut_default">
+        <item>NOM PROPRIETAIRE</item>
+        <item>NOM PDV</item>
+        <item>NO TELEPHONE PROPRIETAIRE</item>
+        <item>ADRESSE</item>
+        <item>TYPE</item>
+        <item>REGIME</item>
+        <item>DECORATION</item>
+        <item>EMBALLAGES</item>
+    </string-array>
+</resources>
