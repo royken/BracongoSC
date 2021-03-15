@@ -28,6 +28,7 @@ import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.network.NetworkUtil;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
+import com.royken.bracongo.bracongosc.util.Constants;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -106,7 +107,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         layout.setVisibility(View.INVISIBLE);
         spinner.startAnimation();
         spinner.setIsVisible(true);
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", "");
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, "");
         WebService service = retrofit.create(WebService.class);
         service.passwordRecover(demande)
                 .subscribeOn(Schedulers.io())
@@ -154,7 +155,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     }
 
     private void logPage() {
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         PageLog page = new PageLog();
         page.setPage(PAGE_NAME);

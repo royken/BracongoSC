@@ -319,7 +319,7 @@
         app:backgroundColor="@color/blue_grey_900"
         app:primarySpinnerColor="#ffffff"
         app:rotationSpeedInMs="3000"
-        app:text="Authentification ..."
+        app:text="Chargement ventes ..."
         app:secondarySpinnerColor="#FF9800"
         app:textColor="#ffffff"
         app:textSize="20" />

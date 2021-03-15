@@ -33,6 +33,7 @@ import com.royken.bracongo.bracongosc.network.NetworkUtil;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.security.Util;
+import com.royken.bracongo.bracongosc.util.Constants;
 import com.royken.bracongo.bracongosc.util.Tools;
 
 import java.io.IOException;
@@ -168,7 +169,7 @@ public class LoginActivity extends AppCompatActivity {
         layout.setVisibility(View.INVISIBLE);
         spinner.startAnimation();
         spinner.setIsVisible(true);
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", "");
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, "");
         WebService service = retrofit.create(WebService.class);
         service.register(loginData)
                 .subscribeOn(Schedulers.io())

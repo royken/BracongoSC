@@ -21,6 +21,7 @@ import com.royken.bracongo.bracongosc.entities.PlainteReponse;
 import com.royken.bracongo.bracongosc.entities.ProduitMois;
 import com.royken.bracongo.bracongosc.entities.RemiseInfo;
 import com.royken.bracongo.bracongosc.entities.VenteReponse;
+import com.royken.bracongo.bracongosc.entities.geo.PositionsCamion;
 
 import java.util.List;
 
@@ -90,4 +91,7 @@ public interface WebService {
 
     @POST("suiviclient/v1/compte/demandemodification")
     Observable<DemandeModificationClient> demanderModification(@Body DemandeModificationClientDto demande);
+
+    @GET("ivtnew/WCFMobile.svc/GetCircInfoJS/{token}")
+    Observable<PositionsCamion> getPositionCamion(@Path("token") String token);
 }

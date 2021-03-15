@@ -33,6 +33,7 @@ import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.entities.ProduitMois;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
+import com.royken.bracongo.bracongosc.util.Constants;
 import com.royken.bracongo.bracongosc.util.Helper;
 
 import java.io.IOException;
@@ -146,6 +147,8 @@ public class VenteCircuitFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_vente_circuit, container, false);
+        TextView title = (TextView) getActivity().findViewById(R.id.title);
+        title.setText("Ventes circuit");
         parent_view = rootView.findViewById(android.R.id.content);
         listVw = (ListView) rootView.findViewById(R.id.listAchats);
         produitsVw = (ListView) rootView.findViewById(R.id.listProduits);
@@ -188,6 +191,7 @@ public class VenteCircuitFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
             //title.setText("HISTO ACHATS DU MOIS : " + circuit );
+            getVentesCircuitData();
             logPage();
             /*Dialog1 = new ProgressDialog(getActivity());
             Dialog2 = new ProgressDialog(getActivity());
@@ -238,146 +242,6 @@ public class VenteCircuitFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-   /* private class AchatsJourTask extends AsyncTask<String, Void, Void> {
-        // Required initialization
-
-        private ProgressDialog Dialog = new ProgressDialog(getActivity());
-        private boolean data;
-
-
-        protected void onPreExecute() {
-            // Dialog.setMessage("Récupération des informations...");
-            // Dialog.show();
-            casierTotal = 0;
-            casierTotalBg = 0;
-            casierTotalBi = 0;
-            casierTotalPet = 0;
-
-            hectoTotal = 0;
-            hectoTotalBg = 0;
-            hectoTotalBi = 0;
-            hectoTotalPet = 0;
-        }
-
-        // Call after onPreExecute method
-        protected Void doInBackground(String... urls) {
-            //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443","");
-            WebService service = retrofit.create(WebService.class);
-            Call<List<AchatProduitMois>> call = service.getHistoAchatsMoisCircuit(circuit);
-            call.enqueue(new Callback<List<AchatProduitMois>>() {
-                @Override
-                public void onResponse(Call<List<AchatProduitMois>> call, Response<List<AchatProduitMois>> response) {
-                    Log.i("Result....", response.toString());
-                    achatProduitMois = response.body();
-                    Calendar cal = Calendar.getInstance();
-                    int jour = cal.get(Calendar.DAY_OF_MONTH);
-                    achatMoisData = new AchatMoisData[jour];
-                    for(int i = 0; i < jour; i++){
-                        achatMoisData[i] = new AchatMoisData();
-                    }
-
-                    for (AchatProduitMois achat: achatProduitMois) {
-                        casierTotal += achat.getQuantite();
-                        hectoTotal += achat.getHecto();
-                        if(achat.getFamille().equalsIgnoreCase("BIERE")){
-                            achatMoisData[achat.getJour() - 1].addBi(achat.getQuantite());
-                            casierTotalBi += achat.getQuantite();
-                            hectoTotalBi += achat.getHecto();
-                        }
-
-                        if(achat.getFamille().equalsIgnoreCase("BG")){
-                            achatMoisData[achat.getJour() - 1].addBg(achat.getQuantite());
-                            casierTotalBg += achat.getQuantite();
-                            hectoTotalBg += achat.getHecto();
-                        }
-
-                        if(achat.getFamille().equalsIgnoreCase("PET")){
-                            achatMoisData[achat.getJour() - 1].addPet(achat.getQuantite());
-                            casierTotalPet += achat.getQuantite();
-                            hectoTotalPet += achat.getHecto();
-                        }
-                        achatMoisData[achat.getJour() - 1].addCA(achat.getMontant());
-                    }
-
-                    casierTotalTvw.setText(casierTotal + " CS");
-                    casierTotalBiTvw.setText(casierTotalBi + " CS");
-                    casierTotalBgTvw.setText(casierTotalBg + " CS");
-                    casierTotalPetTvw.setText(casierTotalPet + "PK");
-
-                    hectoTotalTvw.setText(String.format("%.0f", hectoTotal) + " Hl");
-                    hectoTotalBiTvw.setText(String.format("%.0f",hectoTotalBi) + " Hl");
-                    hectoTotalBgTvw.setText(String.format("%.0f", hectoTotalBg) + " Hl");
-                    hectoTotalPetTvw.setText(String.format("%.0f", hectoTotalPet) + "Hl");
-
-                    achatMoisDataAdapter = new AchatMoisDataAdapter(getActivity(), Arrays.asList(achatMoisData));
-                    listVw.setAdapter(achatMoisDataAdapter);
-                    Helper.getListViewSize(listVw);
-                    /* FIN MOIS*/
-
-      /*              Dialog1.dismiss();
-
-
-                }
-                @Override
-                public void onFailure(Call<List<AchatProduitMois>> call, Throwable t) {
-                    Log.i("Error...", t.toString());
-                }
-            });
-            return null;
-        }
-
-        protected void onPostExecute(Void unused) {
-            Dialog.dismiss();
-        }
-    }
-*/
-/*
-    private class ProduitMoisTask extends AsyncTask<String, Void, Void> {
-        // Required initialization
-
-        private ProgressDialog Dialog = new ProgressDialog(getActivity());
-        private boolean data;
-
-
-        protected void onPreExecute() {
-            // Dialog.setMessage("Récupération des informations...");
-            // Dialog.show();
-        }
-
-        // Call after onPreExecute method
-        protected Void doInBackground(String... urls) {
-            //Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443");
-            Retrofit retrofit = RetrofitBuilder.getRetrofit("https://api.bracongo-cd.com:8443","");
-            WebService service = retrofit.create(WebService.class);
-            Call<List<ProduitMois>> call = service.getProduitsAchatsMoisCircuit(circuit);
-            call.enqueue(new Callback<List<ProduitMois>>() {
-                @Override
-                public void onResponse(Call<List<ProduitMois>> call, Response<List<ProduitMois>> response) {
-                    Log.i("Result....", response.toString());
-                    produitsMois = response.body();
-                    produitsAdapter = new ProduitMoisCircuitAdapter(getActivity(), produitsMois);
-                    produitsVw.setAdapter(produitsAdapter);
-                    Helper.getListViewSize(produitsVw);
-                    /* FIN MOIS*/
-
- /*                   Dialog2.dismiss();
-
-
-                }
-                @Override
-                public void onFailure(Call<List<ProduitMois>> call, Throwable t) {
-                    Log.i("Error...", t.toString());
-                }
-            });
-            return null;
-        }
-
-        protected void onPostExecute(Void unused) {
-            Dialog.dismiss();
-        }
-    }
-    */
 
     private class MergedResponse{
         public List<AchatProduitMois> achatProduitMois;
@@ -419,7 +283,7 @@ public class VenteCircuitFragment extends Fragment {
     private void getVentesCircuitData(){
         spinner.startAnimation();
         spinner.setIsVisible(true);
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         Observable.zip(service.getProduitsAchatsMoisCircuit(circuit), service.getHistoAchatsMoisCircuit(circuit), new BiFunction<List<ProduitMois>, List<AchatProduitMois>, MergedResponse>() {
             int i;
@@ -504,6 +368,8 @@ public class VenteCircuitFragment extends Fragment {
                         produitsAdapter = new ProduitMoisCircuitAdapter(getActivity(), produitsMois);
                         produitsVw.setAdapter(produitsAdapter);
                         Helper.getListViewSize(produitsVw);
+                        spinner.stopAnimation();
+                        spinner.setIsVisible(false);
                     }
                 });
             }
@@ -513,7 +379,7 @@ public class VenteCircuitFragment extends Fragment {
     }
 
     private void logPage() {
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         PageLog page = new PageLog();
         page.setPage(PAGE_NAME);

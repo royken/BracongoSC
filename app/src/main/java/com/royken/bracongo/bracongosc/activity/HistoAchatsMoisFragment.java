@@ -38,6 +38,7 @@ import com.royken.bracongo.bracongosc.entities.ProduitMois;
 import com.royken.bracongo.bracongosc.entities.RemiseInfo;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
+import com.royken.bracongo.bracongosc.util.Constants;
 import com.royken.bracongo.bracongosc.util.Helper;
 import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
@@ -138,7 +139,7 @@ public class HistoAchatsMoisFragment extends Fragment {
     private void getData() {
         spinner.startAnimation();
         spinner.setIsVisible(true);
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         Observable.zip(service.getHistoAchatsMois(client.getNumero().trim(),getIntFromClient(client.getNumero().trim())+""), service.getProduitsAchatsMois(client.getNumero().trim(),getIntFromClient(client.getNumero().trim())+""), new BiFunction<List<AchatProduit>, List<ProduitMois>, MergedResponse>() {
             int i;
@@ -333,7 +334,7 @@ public class HistoAchatsMoisFragment extends Fragment {
     }
 
     private void logPage() {
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         PageLog page = new PageLog();
         page.setPage(PAGE_NAME);

@@ -31,6 +31,7 @@ import com.royken.bracongo.bracongosc.entities.Client;
 import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
+import com.royken.bracongo.bracongosc.util.Constants;
 import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
 import java.io.IOException;
@@ -82,6 +83,8 @@ public class ClientDetailFragment extends Fragment {
     private TextView dernierAchatTvw;
     private TextView emballagesTvw;
     private TextView consEmballagesTvw;
+    private TextView latTvw;
+    private TextView longTvw;
 
 
     private FloatingActionButton remiseBtn;
@@ -163,6 +166,8 @@ public class ClientDetailFragment extends Fragment {
         dernierAchatTvw = (TextView) rootView.findViewById(R.id.dernierachatValue);
         emballagesTvw = (TextView) rootView.findViewById(R.id.emballagesValue);
         consEmballagesTvw = (TextView) rootView.findViewById(R.id.consValue);
+        latTvw = (TextView) rootView.findViewById(R.id.latValue);
+        longTvw = (TextView) rootView.findViewById(R.id.longValue);
 
         remiseBtn = (FloatingActionButton)rootView.findViewById(R.id.remiseBtn);
         achatsMoisBtn =(FloatingActionButton) rootView.findViewById(R.id.achatMoisBtn);
@@ -245,6 +250,17 @@ public class ClientDetailFragment extends Fragment {
             }
         });
 
+        itineraireBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment fragment = PositionClientFragment.newInstance(idClient);
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.fragment,fragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+        });
+
         modifierBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -287,19 +303,21 @@ public class ClientDetailFragment extends Fragment {
                 client = client_;
                 Log.i("CLIENT : ", client.toString());
                 nomTvw.setText(client.getNom());
-                compteTvw.setText(client.getNumero());
+                compteTvw.setText(client.getNumero() == null ? "" : client.getNumero());
                 quartierTvw.setText(client.getQuartier());
                 communeTvw.setText(client.getCommune());
                 proprioTvw.setText(client.getNomProprietaire());
                 adresseTvw.setText(client.getAdresse());
-                telephoneTvw.setText(client.getTelephone());
+                telephoneTvw.setText(client.getTelephone() == null ? "" : client.getTelephone());
                 typeTvw.setText(client.getType());
                 regimeTvw.setText(client.getRegime());
                 categorieTvw.setText(client.getCategorie());
                 //decorationTvw.setText(client.getDec);
-                nocontratTvw.setText(client.getNumeroContrat());
-                datecreationTvw.setText(getDateString(client.getDateCreation()));
-                dernierAchatTvw.setText(getDateString(client.getDernierAchat()));
+                nocontratTvw.setText(client.getNumeroContrat() == null ?"" : client.getNumeroContrat());
+                datecreationTvw.setText(client.getDateCreation() == null ? "" : getDateString(client.getDateCreation()));
+                dernierAchatTvw.setText( client.getDernierAchat() == null ? "" : getDateString(client.getDernierAchat()));
+                latTvw.setText(client.getLatitude() == null ? "": client.getLatitude());
+                longTvw.setText(client.getLongitude() == null ? "" :client.getLongitude());
                 consEmballagesTvw.setText(client.getConsignationEmballages()+"");
                 emballagesTvw.setText(client.getEmballage()+"");
                 logPage();
@@ -346,7 +364,7 @@ public class ClientDetailFragment extends Fragment {
     }
 
     private void logPage() {
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         PageLog page = new PageLog();
         page.setPage(PAGE_NAME);

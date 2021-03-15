@@ -33,6 +33,7 @@ import com.royken.bracongo.bracongosc.entities.Plainte;
 import com.royken.bracongo.bracongosc.entities.RemiseInfo;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
+import com.royken.bracongo.bracongosc.util.Constants;
 import com.royken.bracongo.bracongosc.util.Helper;
 import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
@@ -209,7 +210,7 @@ public class PlainteFragment extends ListFragment {
     private void getPlainteData(){
         spinner.startAnimation();
         spinner.setIsVisible(true);
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         service.getPlaintesClientMaryse(client.getNumero().trim())
                 .subscribeOn(Schedulers.io())
@@ -248,7 +249,7 @@ public class PlainteFragment extends ListFragment {
     }
 
     private void logPage() {
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         PageLog page = new PageLog();
         page.setPage(PAGE_NAME);

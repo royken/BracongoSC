@@ -36,6 +36,7 @@ import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.network.NetworkUtil;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
+import com.royken.bracongo.bracongosc.util.Constants;
 import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
 
 import java.io.IOException;
@@ -207,7 +208,7 @@ public class ModificationClientFragment extends Fragment {
     }
 
     private void logPage() {
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         PageLog page = new PageLog();
         page.setPage(PAGE_NAME);
@@ -240,7 +241,7 @@ public class ModificationClientFragment extends Fragment {
     private void envoyerDemande() {
         spinner.startAnimation();
         spinner.setIsVisible(true);
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         service.demanderModification(demande)
                 .subscribeOn(Schedulers.io())

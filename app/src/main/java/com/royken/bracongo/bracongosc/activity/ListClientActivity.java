@@ -43,6 +43,7 @@ import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
 import com.royken.bracongo.bracongosc.network.util.AndroidNetworkUtility;
+import com.royken.bracongo.bracongosc.util.Constants;
 import com.royken.bracongo.bracongosc.util.ModuleChoice;
 import com.royken.bracongo.bracongosc.viewmodel.CircuitViewModel;
 import com.royken.bracongo.bracongosc.viewmodel.ClientViewModel;
@@ -146,44 +147,6 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
             e.printStackTrace();
         }
 
-       /* ventesBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                settings = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                circuit = settings.getString("com.bracongo.circuit","");
-                if(circuit.length() < 5){
-                    Toast.makeText(getActivity(), "Le circuit est invalide, Modifiez-le", Toast.LENGTH_LONG).show();
-                }
-                Fragment fragment = VenteCircuitFragment.newInstance(circuit);
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.fragment,fragment);
-                ft.addToBackStack(null);
-                ft.commit();
-            }
-        });*/
-
-       /* refreshCircuitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                settings = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                circuit = settings.getString("com.bracongo.circuit","");
-                if(circuit.length() < 5){
-                    Toast.makeText(getActivity(), "Le circuit est invalide, Modifiez-le", Toast.LENGTH_LONG).show();
-                }
-                else {
-
-                    AndroidNetworkUtility androidNetworkUtility = new AndroidNetworkUtility();
-                    if (!androidNetworkUtility.isConnected(getActivity())) {
-                        Toast.makeText(getActivity(), "Aucune connexion au serveur. Veuillez reéssayer plus tard", Toast.LENGTH_LONG).show();
-                    } else {
-
-                       // new ClientsTask().execute();
-                    }
-                }
-
-            }
-        });
-        */
 
         modifierCircuitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -217,7 +180,7 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
         refreshCircuitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment fragment = CamionFragment.newInstance();
+                Fragment fragment = CamionFragment.newInstance(circuit);
                 FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.fragment,fragment);
                 ft.addToBackStack(null);
@@ -375,7 +338,7 @@ public class ListClientActivity extends Fragment implements  SearchView.OnQueryT
     }
 
     private void logPage() {
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         PageLog page = new PageLog();
         page.setPage(PAGE_NAME);

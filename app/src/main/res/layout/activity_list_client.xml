@@ -72,14 +72,14 @@
                     app:backgroundTint="@color/purple_400"
                     app:elevation="0dp"
                     app:fabSize="mini"
-                    app:srcCompat="@android:drawable/ic_dialog_info" />
+                    app:srcCompat="@android:drawable/ic_dialog_map" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:textColor="@color/grey_40"
-                    android:text="Mettre à Jour" />
+                    android:text="Localiser SRD" />
 
             </LinearLayout>
 

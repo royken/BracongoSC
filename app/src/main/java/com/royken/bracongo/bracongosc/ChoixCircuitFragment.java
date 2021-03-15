@@ -71,7 +71,7 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
     private CircuitViewModel circuitViewModel;
     private ClientViewModel clientViewModel;
     private List<Client> clients;
-    private String circuit;
+    private String circuit_;
     KLoadingSpin spinner;
     private String accessToken;
     private SearchView mSearchView;
@@ -217,8 +217,10 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
         if(circuit == null){
             Toast.makeText(getContext(), "La selection du circuit est obligatoire", Toast.LENGTH_LONG).show();
         }
-        if(module.equalsIgnoreCase(String.valueOf(ModuleChoice.SUIVI)))
+        if(module.equalsIgnoreCase(String.valueOf(ModuleChoice.SUIVI))) {
+            this.circuit_ = circuit.getCirCodcir().trim();
             loadClients(circuit.getCirCodcir().trim());
+        }
         if(module.equalsIgnoreCase(String.valueOf(ModuleChoice.CREATION))){
             Fragment fragment = AjoutCompteFragment.newInstance(circuit.getCirCodcir());
             FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
@@ -259,6 +261,7 @@ public class ChoixCircuitFragment extends Fragment  implements  SearchView.OnQue
                         clientViewModel.deleteAllClient();
                         clientViewModel.saveAllClients(clients);
                         sharedPreferences.edit().putBoolean("config.clientLoaded", true).apply();
+                        sharedPreferences.edit().putString("config.circuit", circuit_).apply();
                         Fragment fragment = ListClientActivity.newInstance();
                         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                         ft.replace(R.id.fragment,fragment);

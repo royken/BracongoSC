@@ -29,6 +29,7 @@ import com.royken.bracongo.bracongosc.entities.Compte;
 import com.royken.bracongo.bracongosc.entities.PageLog;
 import com.royken.bracongo.bracongosc.network.RetrofitBuilder;
 import com.royken.bracongo.bracongosc.network.WebService;
+import com.royken.bracongo.bracongosc.util.Constants;
 import com.royken.bracongo.bracongosc.util.ModuleChoice;
 import com.royken.bracongo.bracongosc.viewmodel.CompteViewModel;
 
@@ -192,7 +193,7 @@ public class CompteFragment extends Fragment {
     }
 
     private void logPage() {
-        Retrofit retrofit = RetrofitBuilder.getRetrofit("http://10.0.2.2:8085", accessToken);
+        Retrofit retrofit = RetrofitBuilder.getRetrofit(Constants.API_BASE_URL, accessToken);
         WebService service = retrofit.create(WebService.class);
         PageLog page = new PageLog();
         page.setPage(PAGE_NAME);
